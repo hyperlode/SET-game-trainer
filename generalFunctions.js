@@ -27,6 +27,57 @@ function arrayDeepCopy(array){
 
 }
 
+function clone(obj) {
+	// simple clone an object, so it is a completly different object, and there is no reference towards the old object anymore....
+	// http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
+	//combined with: http://stackoverflow.com/questions/10086333/duplicate-a-javascript-prototype-instance	
+	// USAGE: var d2 = clone(d1);
+	if (typeof obj == 'undefined'){
+		console.log("ASSERT ERROR obj empty!");
+	}
+    if (null == obj || "object" != typeof obj) return obj;
+    var copy = new obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    }
+    return copy;
+}
+// function clone(obj) {
+	// //cloning turns out to be surprisingly difficult! The JSON step looks cumbersome but appears to be the fastest.... (and in my case: the only working!	)
+	// // // simple clone an object, so it is a completly different object, and there is no reference towards the old object anymore....
+	// // // http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-an-object/5344074#5344074
+	// // // USAGE: var d2 = clone(d1);
+	// if (typeof obj == 'undefined'){
+		// console.log("ASSERT ERROR obj empty!");
+	// }
+	
+	// return JSON.parse(JSON.stringify(obj));
+     
+// }
+
+
+// function clone(obj) {
+	// //simple clone an object, so it is a completly different object, and there is no reference towards the old object anymore....
+	// //http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-an-object
+	// //USAGE: var d2 = clone(d1);
+
+    // if(obj === null || typeof(obj) !== 'object' || 'isActiveClone' in obj)
+        // return obj;
+
+    // var temp = obj.constructor(); // changed
+
+    // for(var key in obj) {
+        // if(Object.prototype.hasOwnProperty.call(obj, key)) {
+			// console.log(obj);
+            // obj['isActiveClone'] = null;
+            // temp[key] = clone(obj[key]);
+            // delete obj['isActiveClone'];
+        // }
+    // }    
+
+    // return temp;
+// }
+
 function arrayIndexAsElement(length){
 	var array = [];
 	for (var i = 0; i< length; i++){
@@ -79,6 +130,7 @@ function createArrayWithMultipliedIndexAsValue(length, multiplier){
  * Returns a random number between min (inclusive) and max (exclusive)
  */
 function getRandomArbitrary(min, max) {
+	//not an INT!!!
     return Math.random() * (max - min) + min;
 }
 
@@ -89,6 +141,8 @@ function getRandomArbitrary(min, max) {
 function getRandomIntIncludingMinAndMax(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+
 
 //returns the index of a certain element in an array (prototype of array)
 var indexOf = function(element) {
@@ -133,4 +187,52 @@ function getKeys(associativeArray){
 		}
 	}
 	return keys;
+}
+
+// http://stackoverflow.com/questions/14832603/check-if-all-values-of-array-are-equal
+Array.prototype.allValuesSame = function() {
+
+    for(var i = 1; i < this.length; i++)
+    {
+        if(this[i] !== this[0])
+            return false;
+    }
+
+    return true;
+}
+
+Array.prototype.allValuesUnique = function () {
+    var r = new Array();
+	var allUnique = true;
+    checkLabel:for(var i = 0, n = this.length; i < n; i++)
+    {
+    	for(var x = 0, y = r.length; x < y; x++)
+    	{
+    		if(r[x]==this[i])
+    		{
+                allUnique = false;
+    			break checkLabel;
+    		}
+    	}
+    	r[r.length] = this[i];
+    }
+    return allUnique;
+}
+
+// //http://stackoverflow.com/questions/840781/easiest-way-to-find-duplicate-values-in-a-javascript-array
+Array.prototype.unique = function () {
+    var r = new Array();
+    o:for(var i = 0, n = this.length; i < n; i++)
+    {
+    	for(var x = 0, y = r.length; x < y; x++)
+    	{
+    		if(r[x]==this[i])
+    		{
+                // alert('this is a DUPE!');
+    			continue o;
+    		}
+    	}
+    	r[r.length] = this[i];
+    }
+    return r;
 }
