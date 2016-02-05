@@ -1,9 +1,9 @@
 docReady(function() { 
 	console.log ("yeee");
 	// var allCards = new Cards(4,3);
-	
-	numberOfProperties = 4;
-	valuesPerProperty = 3;
+	 
+	numberOfProperties = 4; //i.e. shape, quantity, color, infill
+	valuesPerProperty = 3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	
 	// var deck = new Deck(numberOfProperties,valuesPerProperty,100,true);
 	// deck.show();
@@ -22,21 +22,59 @@ docReady(function() {
 	// missingCard.setIdFromProperties();
 	// missingCard.show();
 	
+	
+	
 	var cards= new Cards(numberOfProperties, valuesPerProperty);
-	setMinusOne = []
-	for (var i=0;i<valuesPerProperty - 1;i++){
-		
-		// gameSET_getCardPropertiesThatFitProvidedCardsSoASetIsPossible();
-		var card = cards.getRandomCard();
-		card.show();
-		setMinusOne.push(card);
+	setBuilder = []
+	setBuilder.push(cards.getRandomCard());
+	setBuilder.push(cards.getRandomCard());
+	
+	var cardsToChooseFromProperties = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+	var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+	setBuilder.push(fittingCards.getRandomCard());
+	
+	console.log(setBuilder);
+	for (var i=0;i<3;i++){
+		setBuilder[i].show();
 	}
+	
+	// var card = cards.getRandomCard();
+	// card.show();
+	// setBuilder.push(card);
+	// for (var i=0;i<valuesPerProperty - 1;i++){
+	// var cardsToChooseFromProperties = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder)
+	// var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+	// for (var i=0;i<3;i++){
+	// //while(fittingCards.getNumberOfCards() >0){
+		// // gameSET_getCardPropertiesThatFitProvidedCardsSoASetIsPossible();
+		
+		// setBuilder.push (fittingCards.getRandomCard());
+		
+		
+		// console.log("-------");
+		// console.log(fittingCards.getNumberOfCards());
+		// console.log(setBuilder.length);
+		// console.log(setBuilder);
+		
+		// cardsToChooseFromProperties = fittingCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder)
+		// fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+		// fittingCards.show();
+		// // var card = cards.getRandomCard();
+		// // card.show();
+		// // setBuilder.push(card);
+	// }
+	
+	// for (var i=0;i<setBuilder.length;i++){
+		// setBuilder[i].show();
+	// }
 	// console.log(setMinusOne);
 	
-	missingCardPropertyValues = cards.gameSET_getCardPropertiesForMissingCard(setMinusOne);
-	var missingCard = new Card("",numberOfProperties, valuesPerProperty,false,missingCardPropertyValues);
-	missingCard.setIdFromProperties();
-	missingCard.show();
+	// missingCardPropertyValues = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+	// fittingCards = new Cards (numberOfProperties, valuesPerProperty, missingCardPropertyValues);
+	// console.log(fittingCards.show());
+	// // var missingCard = new Card("",numberOfProperties, valuesPerProperty,false,missingCardPropertyValues);
+	// missingCard.setIdFromProperties();
+	// missingCard.show();
 	
 });
 
@@ -114,24 +152,74 @@ Deck.prototype.show = function(){
 //---------------------------CARDS --------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 
-function Cards(properties, valuesForEachProperty){
-	
+function Cards(numberOfProperties, valuesForEachProperty, propertiesValues){
+	propertiesValues = typeof propertiesValues !== 'undefined' ? propertiesValues : []; //this is an array: index is property, per element a list (or single element) with possible values.
 	this.cards = [];
-	for (var i = 0; i<Math.pow(valuesForEachProperty, properties); i++){
-		this.cards.push(new Card(i,properties,valuesForEachProperty,false));
-		// console.log(i);
-		for (var property = 0; property<properties;property++){
-			this.cards[i].setPropertyValue(property, Math.floor((i%Math.pow(valuesForEachProperty, property+1)) / Math.pow(valuesForEachProperty, property)));
+	
+	
+	if (propertiesValues.length>0){
+		//SPECIAL CASE specific propertise provided in lists.
+		if (numberOfProperties !== propertiesValues.length){
+			console.log("ASSERT ERROR provide properties in list, have a length that doesnt match the number of Properties indicated.");
 		}
-		// this.cards[i].setProperty(0,Math.floor(i%valuesForEachProperty));
-		// this.cards[i].setProperty(1, Math.floor((i%Math.pow(valuesForEachProperty, 2)) / Math.pow(valuesForEachProperty, 1)));
-		// this.cards[i].setProperty(2, Math.floor((i%Math.pow(valuesForEachProperty, 3)) / Math.pow(valuesForEachProperty, 2)));
-		// this.cards[i].setProperty(3, Math.floor((i%Math.pow(valuesForEachProperty, 4)) / Math.pow(valuesForEachProperty, 3)));
-		this.cards[i].setIdFromProperties();
-		// this.cards[i].show();
+		
+		//create cards
+		var numberOfCards = 0
+		for(var i = 0; i<numberOfProperties; i++){
+			if (numberOfCards == 0){
+				numberOfCards = propertiesValues[i].length;   
+			}else{
+				numberOfCards *= propertiesValues[i].length;   
+			}
+		}
+		
+		for(var i = 0; i<numberOfCards; i++){
+			this.cards.push(new Card(i,numberOfProperties,valuesForEachProperty,false));
+		}
+		
+		var afterHowManyCardsRepeatCycleDelayer = 0;
+		for (var property = 0; property<numberOfProperties;property++){
+			for(var i = 0; i<this.cards.length; i++){
+				propertyIndex = Math.floor((i%Math.pow(propertiesValues[property].length, property - afterHowManyCardsRepeatCycleDelayer + 1)) / Math.pow(propertiesValues[property].length, property - afterHowManyCardsRepeatCycleDelayer));
+				this.cards[i].setPropertyValue(property, propertiesValues[property][propertyIndex]);
+			}
+			 
+			 if ((propertiesValues[property].length) == 1){
+				afterHowManyCardsRepeatCycleDelayer += 1 ;
+			}
+		}
+		
+	}else{	
+		//NORMAL CASE
+		for (var i = 0; i<Math.pow(valuesForEachProperty, numberOfProperties); i++){
+			//add new card. total number of possible cards = valuesPerProperty^numberOfProperties
+			this.cards.push(new Card(i,numberOfProperties,valuesForEachProperty,false));
+			// console.log(i);
+			for (var property = 0; property<numberOfProperties;property++){
+				//for every card, fill in all its properties with proper values, so all cards are unique.
+				//i.e. 3 properties, 4 values per property:   0,0,0,0   1,0,0,0    2,0,0,0   0,1,0,0   1,1,0,0 ...
+				this.cards[i].setPropertyValue(property, Math.floor((i%Math.pow(valuesForEachProperty, property+1)) / Math.pow(valuesForEachProperty, property)));
+			}
+			// this.cards[i].setProperty(0,Math.floor(i%valuesForEachProperty));
+			// this.cards[i].setProperty(1, Math.floor((i%Math.pow(valuesForEachProperty, 2)) / Math.pow(valuesForEachProperty, 1)));
+			// this.cards[i].setProperty(2, Math.floor((i%Math.pow(valuesForEachProperty, 3)) / Math.pow(valuesForEachProperty, 2)));
+			// this.cards[i].setProperty(3, Math.floor((i%Math.pow(valuesForEachProperty, 4)) / Math.pow(valuesForEachProperty, 3)));
+			
+		}
 	}
 	
-	this.properties = properties;
+	for(var i = 0; i<this.cards.length; i++){
+		this.cards[i].setIdFromProperties();
+	}
+	
+	//check if we have a normal set or not...
+	this.allCombinationsAvailable = true; // normal case, we will build all combinations 
+	if (Math.pow(valuesForEachProperty, numberOfProperties) != this.cards.length){
+		this.allCombinationsAvailable = false;
+	}
+	console.log("all possible combinations present: " +this.allCombinationsAvailable);
+	
+	this.numberOfProperties = numberOfProperties;
 	this.valuesForEachProperty = valuesForEachProperty;
 	
 	this.sumOffAllPropertyValues = 0; //calculate once for use in functions here. 
@@ -178,7 +266,77 @@ Cards.prototype.gameSET_howManyCardsPerSet = function(){
 	
 }
 
-// Cards.prototype.gameSET_getCardPropertiesThatFitProvidedCardsSoASetIsPossible = function( SETBuilder ){
+Cards.prototype.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards = function( SETBuilder ){
+	//check if cards indeed make for a set (all properties unique or equal) (for a three card game, with 3 values, this is always true.)
+	//for each property, run through both cards, check 
+	
+	// if (SETMinusOneCard.length > this.gameSET_howManyCardsPerSet() -1){
+		// console.log("ASSERT ERROR: it will be hard to find matching cards (only if all cards are equal it will work....");
+		// console.log(SETMinusOneCard.length);
+		// console.log(this.gameSET_howManyCardsPerSet() -1);
+	// }
+	
+	possibleCardPropertyValues = []; //store all cards
+	
+	var neededPropertyValues = []; //for each property the needed value to complete a set 
+	for (var i =0;i<this.numberOfProperties; i++){
+		var propertyValues = []; // for one property all values of this set minus one card.
+		// console.log("property:");
+		// console.log(i);
+		for (var j =0;j<SETBuilder.length ; j++){	
+			// console.log(SETMinusOneCard[j].allValuesSame ()
+			propertyValues.push(SETBuilder[j].getPropertyValue(i));
+		}
+		// console.log("propertyValues equal: " + propertyValues.allValuesSame ());
+		// console.log("propertyValues unique: " + propertyValues.allValuesUnique ());
+		
+		if (propertyValues.allValuesSame()){
+			// console.log("all values the same");
+			neededPropertyValues.push([propertyValues[0]]); //simply the same value
+		}else if (propertyValues.allValuesUnique ()){
+			// console.log("all values unique");
+			//check remaining possibilities:
+			var remaining  = this.allPossiblePropertyValues.slice();
+			var uniques = propertyValues.getUniqueValues();
+			// console.log("uniques:");
+			// console.log(uniques);
+			// console.log("remaining before filetering:");
+			// console.log(remaining);
+			//check if all values are unique. if not, not good!
+			if (uniques.length != propertyValues.length){
+				console.log("ASSERT ERROR: non unique values for a property (but also not all equal!)");
+			}
+			
+			//here we take the values we have out of the potential values (so all remaing values are valid values to be chosen from)
+			for (var j =0;j<propertyValues.length; j++){	
+				remaining.remove(propertyValues[j]);
+				// var index = remaining.indexOf(propertyValues[j]);
+				// if (index > -1) {
+					// remaining = remaining.splice(index, 1);
+				// }
+				// this.cards[i].setPropertyValue(property, Math.floor((i%Math.pow(valuesForEachProperty, property+1)) / Math.pow(valuesForEachProperty, property)));
+			}
+			
+			// shuffle(remaining);
+			// neededPropertyValues.push(remaining[0]);
+			// console.log("remaining:");
+			// console.log(remaining);
+			neededPropertyValues.push(remaining);
+			// neededPropertyValues.push(this.sumOffAllPropertyValues - propertyValues.reduce(function(a, b) { return a + b; }, 0)); //the missing value is the sum of all values, - the sum of all values in this "set minus one card" if we have a 0 and a 2      0+1+2  - 0+2  = 1 so one is missing value for this property
+		}else{
+			console.log("ASSERT ERROR: illegal set!");
+			// console.log("actually, not neccessarily bad code, just means that there is a bad set here. depending on start conditions: how many propertyvalues? how many cards per set? ");
+			// console.log("just means: invalid set!");
+			// console.log(SETMinusOneCard);
+		}
+	}
+	
+	//we now have a list from all the propertyvalues, we can build a list of possible cards from it.
+	
+	return neededPropertyValues;
+}
+
+// Cards.prototype.gameSET_getCardPropertiesForMissingCard = function( SETMinusOneCard ){
 	// //check if cards indeed make for a set (all properties unique or equal) (for a three card game, with 3 values, this is always true.)
 	// //for each property, run through both cards, check 
 	
@@ -189,7 +347,7 @@ Cards.prototype.gameSET_howManyCardsPerSet = function(){
 	// }
 	
 	// var neededPropertyValues = []; //for each property the needed value to complete a set 
-	// for (var i =0;i<this.properties; i++){
+	// for (var i =0;i<this.numberOfProperties; i++){
 		// var propertyValues = []; // for one property all values of this set minus one card.
 		
 		// for (var j =0;j<this.gameSET_howManyCardsPerSet()  -1; j++){	
@@ -204,28 +362,7 @@ Cards.prototype.gameSET_howManyCardsPerSet = function(){
 		// if (propertyValues.allValuesSame ()){
 			// neededPropertyValues.push(propertyValues[0]); //simply the same value
 		// }else if (propertyValues.allValuesUnique ()){
-			// //check remaining possibilities:
-			// var remaining  = this.allPossiblePropertyValues.slice();
-			// var uniques = propertyValues.getUniqueValues();
-			
-			// //check if all values are unique. if not, not good!
-			// if (uniques.length != propertyValues.length){
-				// console.log("ASSERT ERROR: non unique values for a property (but also not all equal!)");
-			// }
-			
-			// //here we take the values we have out of the potential values (so all remaing values are valid values to be chosen from)
-			// for (var j =0;j<propertyValues.length; j++){	
-				// var index = remaining.indexOf(propertyValues[j]);
-				// if (index > -1) {
-					// remaining = remaining.splice(index, 1);
-				// }
-			// }
-			
-			// remaining.shuffle();
-			// neededPropertyValues.push(remaining[0]);
-		
-		
-			// // neededPropertyValues.push(this.sumOffAllPropertyValues - propertyValues.reduce(function(a, b) { return a + b; }, 0)); //the missing value is the sum of all values, - the sum of all values in this "set minus one card" if we have a 0 and a 2      0+1+2  - 0+2  = 1 so one is missing value for this property
+			// neededPropertyValues.push(this.sumOffAllPropertyValues - propertyValues.reduce(function(a, b) { return a + b; }, 0)); //the missing value is the sum of all values, - the sum of all values in this "set minus one card" if we have a 0 and a 2      0+1+2  - 0+2  = 1 so one is missing value for this property
 		// }else{
 			// console.log("ASSERT ERROR: illegal card!");
 			// console.log("actually, not neccessarily bad code, just means that there is a bad set here. depending on start conditions: how many propertyvalues? how many cards per set? ");
@@ -235,43 +372,6 @@ Cards.prototype.gameSET_howManyCardsPerSet = function(){
 	// }
 	// return neededPropertyValues;
 // }
-
-Cards.prototype.gameSET_getCardPropertiesForMissingCard = function( SETMinusOneCard ){
-	//check if cards indeed make for a set (all properties unique or equal) (for a three card game, with 3 values, this is always true.)
-	//for each property, run through both cards, check 
-	
-	if (SETMinusOneCard.length !== this.gameSET_howManyCardsPerSet() -1){
-		console.log("ASSERT ERROR: there should be a set minus one card provided.");
-		console.log(SETMinusOneCard.length);
-		console.log(this.gameSET_howManyCardsPerSet() -1);
-	}
-	
-	var neededPropertyValues = []; //for each property the needed value to complete a set 
-	for (var i =0;i<this.properties; i++){
-		var propertyValues = []; // for one property all values of this set minus one card.
-		
-		for (var j =0;j<this.gameSET_howManyCardsPerSet()  -1; j++){	
-			
-			// console.log(SETMinusOneCard[j].allValuesSame ()
-			propertyValues.push(SETMinusOneCard[j].getPropertyValue(i));
-			
-		}
-		// console.log("propertyValues equal: " + propertyValues.allValuesSame ());
-		// console.log("propertyValues unique: " + propertyValues.allValuesUnique ());
-		
-		if (propertyValues.allValuesSame ()){
-			neededPropertyValues.push(propertyValues[0]); //simply the same value
-		}else if (propertyValues.allValuesUnique ()){
-			neededPropertyValues.push(this.sumOffAllPropertyValues - propertyValues.reduce(function(a, b) { return a + b; }, 0)); //the missing value is the sum of all values, - the sum of all values in this "set minus one card" if we have a 0 and a 2      0+1+2  - 0+2  = 1 so one is missing value for this property
-		}else{
-			console.log("ASSERT ERROR: illegal card!");
-			console.log("actually, not neccessarily bad code, just means that there is a bad set here. depending on start conditions: how many propertyvalues? how many cards per set? ");
-			console.log("just means: invalid set!");
-			console.log(SETMinusOneCard);
-		}
-	}
-	return neededPropertyValues;
-}
 	
 
 

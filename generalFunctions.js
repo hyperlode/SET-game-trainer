@@ -219,8 +219,25 @@ Array.prototype.allValuesUnique = function () {
     return allUnique;
 }
 
+Array.prototype.remove = function() {
+
+	// var ary = ['three', 'seven', 'eleven'];
+
+	// ary.remove('seven');
+
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+
+
 // //http://stackoverflow.com/questions/840781/easiest-way-to-find-duplicate-values-in-a-javascript-array
-Array.prototype.unique = function () {
+Array.prototype.getUniqueValues = function () {
     var r = new Array();
     o:for(var i = 0, n = this.length; i < n; i++)
     {
