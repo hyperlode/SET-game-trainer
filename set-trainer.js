@@ -1,10 +1,11 @@
 docReady(function() { 
-	console.log ("yeee");
+	
 	// var allCards = new Cards(4,3);
 	 
 	numberOfProperties = 4; //i.e. shape, quantity, color, infill
-	valuesPerProperty = 3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
-	
+	valuesPerProperty = 5; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
+	testCard = new Card ("ABCD" , numberOfProperties, valuesPerProperty, true);
+	testCard.setPropertiesFromId();
 	// var deck = new Deck(numberOfProperties,valuesPerProperty,100,true);
 	// deck.show();
 	
@@ -23,7 +24,111 @@ docReady(function() {
 	// missingCard.show();
 	
 	
+	//get perfect set.
+
+	// var completeCards= new Cards(numberOfProperties, valuesPerProperty);
+	// setBuilder = []
+	// setBuilder.push(cards.getRandomCard());
+	// setBuilder.push(cards.getRandomCard());
 	
+	// var cardsToChooseFromProperties = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+	// var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+	// setBuilder.push(fittingCards.getRandomCard());
+	
+	// console.log(setBuilder);
+	// for (var i=0;i<3;i++){
+		// setBuilder[i].show();
+	// }
+	
+	var completeCards= new Cards(numberOfProperties, valuesPerProperty);
+	var setBuilder = []
+	setBuilder.push(completeCards.getRandomCard());
+	// setBuilder.push(completeCards.getRandomCard());
+	// setBuilder.push(completeCards.getRandomCard());
+	
+	var cardsToChooseFromProperties = completeCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+	// console.log(cardsToChooseFromProperties);
+	var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+	var allFittingCards = fittingCards.getAllCards();
+	
+	// for (var i=0;i<3;i++){
+	while(fittingCards.getNumberOfCards() >0){
+		// gameSET_getCardPropertiesThatFitProvidedCardsSoASetIsPossible();
+		console.log("---adding a card:----");
+		var pickedCard = fittingCards.getRandomCard();
+		pickedCard.show();
+		setBuilder.push (pickedCard);
+		// setBuilder.push (allFittingCards[0]);
+		// console.log(allFittingCards.length);
+		// allFittingCards[0].show();
+		
+		
+		// console.log(fittingCards.getNumberOfCards());
+		
+		cardsToChooseFromProperties = completeCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+		
+		fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+		allFittingCards = fittingCards.getAllCards();
+		// console.log(cardsToChooseFromProperties);
+		// console.log(setBuilder);
+		
+		// for (var j=0;j<setBuilder.length;j++){
+			// setBuilder[j].show();
+		// }
+		// fittingCards.show();
+	}
+	
+	for (var i=0;i<setBuilder.length;i++){
+		setBuilder[i].show();
+	}
+	console.log("fitting cards for set:");
+	// for (var i=0;i<allFittingCards.length;i++){
+		// allFittingCards[i].show();
+	// }
+	// console.log(setMinusOne);
+	
+	// missingCardPropertyValues = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+	// fittingCards = new Cards (numberOfProperties, valuesPerProperty, missingCardPropertyValues);
+	// console.log(fittingCards.show());
+	// // var missingCard = new Card("",numberOfProperties, valuesPerProperty,false,missingCardPropertyValues);
+	// missingCard.setIdFromProperties();
+	// missingCard.show();
+	
+});
+
+function showFullSet(){
+	numberOfProperties = 4; //i.e. shape, quantity, color, infill
+	valuesPerProperty = 5; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
+	var completeCards= new Cards(numberOfProperties, valuesPerProperty);
+	var setBuilder = []
+	setBuilder.push(completeCards.getRandomCard());
+	var cardsToChooseFromProperties = completeCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+	var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+	var allFittingCards = fittingCards.getAllCards();
+	
+	while(fittingCards.getNumberOfCards() >0){
+		console.log("---adding a card:----");
+		var pickedCard = fittingCards.getRandomCard();
+		pickedCard.show();
+		setBuilder.push (pickedCard);
+		cardsToChooseFromProperties = completeCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+		
+		fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+		allFittingCards = fittingCards.getAllCards();
+		
+	}
+	
+	for (var i=0;i<setBuilder.length;i++){
+		setBuilder[i].show();
+	}
+	
+}
+
+
+function showAGenuineSetSet(){
+	//get perfect set.
+	numberOfProperties = 4; //i.e. shape, quantity, color, infill
+	valuesPerProperty = 3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	var cards= new Cards(numberOfProperties, valuesPerProperty);
 	setBuilder = []
 	setBuilder.push(cards.getRandomCard());
@@ -38,46 +143,7 @@ docReady(function() {
 		setBuilder[i].show();
 	}
 	
-	// var card = cards.getRandomCard();
-	// card.show();
-	// setBuilder.push(card);
-	// for (var i=0;i<valuesPerProperty - 1;i++){
-	// var cardsToChooseFromProperties = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder)
-	// var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
-	// for (var i=0;i<3;i++){
-	// //while(fittingCards.getNumberOfCards() >0){
-		// // gameSET_getCardPropertiesThatFitProvidedCardsSoASetIsPossible();
-		
-		// setBuilder.push (fittingCards.getRandomCard());
-		
-		
-		// console.log("-------");
-		// console.log(fittingCards.getNumberOfCards());
-		// console.log(setBuilder.length);
-		// console.log(setBuilder);
-		
-		// cardsToChooseFromProperties = fittingCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder)
-		// fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
-		// fittingCards.show();
-		// // var card = cards.getRandomCard();
-		// // card.show();
-		// // setBuilder.push(card);
-	// }
-	
-	// for (var i=0;i<setBuilder.length;i++){
-		// setBuilder[i].show();
-	// }
-	// console.log(setMinusOne);
-	
-	// missingCardPropertyValues = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
-	// fittingCards = new Cards (numberOfProperties, valuesPerProperty, missingCardPropertyValues);
-	// console.log(fittingCards.show());
-	// // var missingCard = new Card("",numberOfProperties, valuesPerProperty,false,missingCardPropertyValues);
-	// missingCard.setIdFromProperties();
-	// missingCard.show();
-	
-});
-
+}
 
 //-----------------------------------------------------------------------------------------
 //---------------------------DECK --------------------------------------------------------------
@@ -159,8 +225,10 @@ function Cards(numberOfProperties, valuesForEachProperty, propertiesValues){
 	
 	if (propertiesValues.length>0){
 		//SPECIAL CASE specific propertise provided in lists.
+		console.log("special case");
 		if (numberOfProperties !== propertiesValues.length){
 			console.log("ASSERT ERROR provide properties in list, have a length that doesnt match the number of Properties indicated.");
+			console.log(propertiesValues);
 		}
 		
 		//create cards
@@ -176,7 +244,8 @@ function Cards(numberOfProperties, valuesForEachProperty, propertiesValues){
 		for(var i = 0; i<numberOfCards; i++){
 			this.cards.push(new Card(i,numberOfProperties,valuesForEachProperty,false));
 		}
-		
+		// console.log(this.cards);
+		// console.log(propertiesValues);
 		var afterHowManyCardsRepeatCycleDelayer = 0;
 		for (var property = 0; property<numberOfProperties;property++){
 			for(var i = 0; i<this.cards.length; i++){
@@ -188,9 +257,11 @@ function Cards(numberOfProperties, valuesForEachProperty, propertiesValues){
 				afterHowManyCardsRepeatCycleDelayer += 1 ;
 			}
 		}
-		
+		// console.log(this.cards.length);
+		// console.log(this.cards);
 	}else{	
 		//NORMAL CASE
+		console.log("normal case");
 		for (var i = 0; i<Math.pow(valuesForEachProperty, numberOfProperties); i++){
 			//add new card. total number of possible cards = valuesPerProperty^numberOfProperties
 			this.cards.push(new Card(i,numberOfProperties,valuesForEachProperty,false));
@@ -208,6 +279,7 @@ function Cards(numberOfProperties, valuesForEachProperty, propertiesValues){
 		}
 	}
 	
+	//set the id from its properties for each card
 	for(var i = 0; i<this.cards.length; i++){
 		this.cards[i].setIdFromProperties();
 	}
@@ -278,19 +350,22 @@ Cards.prototype.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards = fun
 	
 	possibleCardPropertyValues = []; //store all cards
 	
-	var neededPropertyValues = []; //for each property the needed value to complete a set 
+	var neededPropertyValues = []; //for each property valid value(s) for the given cards to create a set
 	for (var i =0;i<this.numberOfProperties; i++){
+		
+		//get properties from given cards
 		var propertyValues = []; // for one property all values of this set minus one card.
-		// console.log("property:");
-		// console.log(i);
 		for (var j =0;j<SETBuilder.length ; j++){	
 			// console.log(SETMinusOneCard[j].allValuesSame ()
 			propertyValues.push(SETBuilder[j].getPropertyValue(i));
 		}
-		// console.log("propertyValues equal: " + propertyValues.allValuesSame ());
-		// console.log("propertyValues unique: " + propertyValues.allValuesUnique ());
 		
-		if (propertyValues.allValuesSame()){
+		//analyse properties of given cards 
+		if (SETBuilder.length == 1){
+			//if there is only one card, all cards are allowed... (even the same card!)
+			neededPropertyValues.push(this.allPossiblePropertyValues.slice());
+		}else if (propertyValues.allValuesSame() ){
+			
 			// console.log("all values the same");
 			neededPropertyValues.push([propertyValues[0]]); //simply the same value
 		}else if (propertyValues.allValuesUnique ()){
@@ -298,10 +373,6 @@ Cards.prototype.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards = fun
 			//check remaining possibilities:
 			var remaining  = this.allPossiblePropertyValues.slice();
 			var uniques = propertyValues.getUniqueValues();
-			// console.log("uniques:");
-			// console.log(uniques);
-			// console.log("remaining before filetering:");
-			// console.log(remaining);
 			//check if all values are unique. if not, not good!
 			if (uniques.length != propertyValues.length){
 				console.log("ASSERT ERROR: non unique values for a property (but also not all equal!)");
@@ -379,11 +450,11 @@ Cards.prototype.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards = fun
 //------------------------CARD ------------------------------------------------
 //------------------------------------------------------------------------
 function Card (id , numberOfProperties, numberOfValuesForEachProperty, isPropertiesDefinedById,properties){
-	isPropertiesDefinedById = typeof isPropertiesDefinedById !== 'undefined' ? isPropertiesDefinedById : true;
+	isPropertiesDefinedById = typeof isPropertiesDefinedById !== 'undefined' ? isPropertiesDefinedById : false;
 	id = typeof id !== 'undefined' ? id : "noName";
 	properties = typeof properties !== 'undefined' ? properties : [];
 	this.id = id;
-	
+	this.properties = properties;
 	if (properties.length >0 ){
 		//if properties provided: check lenght, and if all values are "valid"
 		if (properties.length == numberOfProperties){
@@ -392,7 +463,7 @@ function Card (id , numberOfProperties, numberOfValuesForEachProperty, isPropert
 					console.log("ASSERT ERROR value outside range ");
 					console.log(numberOfValuesForEachProperty);
 					console.log(properties.slice());
-					properties = [];
+					this.properties[i] = properties[i];
 				}
 				
 			}
@@ -400,16 +471,22 @@ function Card (id , numberOfProperties, numberOfValuesForEachProperty, isPropert
 			console.log("ASSERT ERROR length of properties not valid. ");
 			console.log(properties.length);
 			console.log(numberOfProperties);
-			properties = [];
+			for (var i = 0;i<numberOfProperties;i++){
+				this.properties.push("X");
+			}
 		}
 		
+	}else if (isPropertiesDefinedById ){
+		this.setPropertiesFromId()
+	}else{
+		for (var i = 0;i<numberOfProperties;i++){
+			this.properties.push("X");
+		}
 	}
 	
-	this.properties = properties;
 	
-	for (var i = 0;i<numberOfProperties;i++){
-		this.properties.push("X");
-	}
+	
+	
 }
 
 
@@ -427,7 +504,15 @@ Card.prototype.setPropertyValue = function(property, value){
 	//properties have just a numeric value.
 	this.properties[property] = value;
 }
-
+Card.prototype.setPropertiesFromId = function (){
+	if (this.id.length !== this.properties.length){
+		console.log("ASSERT ERROR: ID should be a string of chars of the same length as there are properties. (and chars to choose from should be no more than possible propertievalues. A=0, B=2,....)");
+	}
+	for (i=0;i<this.properties.length;i++){
+		// this.id.charAt(i);
+		this.properties[i] = this.id.charCodeAt(i) - 65 ; //ascii A=65
+	}
+}
 Card.prototype.getPropertiesAsChars = function(property, value){
 	//get property as letter 0 = A, 1 = B,...
 	var asChars = [];
