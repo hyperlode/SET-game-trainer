@@ -21,6 +21,19 @@ function padding(stringToBePadded, paddingCharacter, totalLength, padLeftElseRig
 	}
 }
 
+
+
+function checkArrayContainsEmptyArrayAsElement(arr){
+	//return true if at least one empty array!
+	for (var i = 0; i<arr.length; i++){
+		
+		if (arr[i].length == 0){
+			return true;
+		}	
+	}
+	return false;
+}
+
 function arrayDeepCopy(array){
 	//http://stackoverflow.com/questions/7486085/copying-array-by-value-in-javascript
 	return array.slice();
