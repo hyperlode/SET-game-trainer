@@ -1,16 +1,42 @@
 var solutionCardId = "";
 var cardsToChooseFrom = [];
 docReady(function() { 
+	guessMissingCardFromSetGame_start();
+	
+});
+
+
+
+function guessMissingCardFromSetGame_start(){
 	numberOfProperties = 4; //i.e. shape, quantity, color, infill
 	valuesPerProperty =3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
+	optionsToChooseFrom = 10;
 	
+	
+	var setShowField = document.getElementById("topField");
+	//prepare fields in dom
+	//set length is always equal to number of values per property
+	for (var i=0;i<valuesPerProperty - 1;i++){
+		addCardLocationToDom(setShowField,i);
+	}
+	
+	var bottomField = document.getElementById("bottomField");
+	for (var i=0;i<optionsToChooseFrom;i++){
+		addPossibleCardSolutionLocationToDom(bottomField, i );
+	}
+	guessMissingCardFromSetGame_restart();
+}
+
+function guessMissingCardFromSetGame_restart(){
+	numberOfProperties = 4; //i.e. shape, quantity, color, infill
+	valuesPerProperty =3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	optionsToChooseFrom = 10;
 	
 	//complete set
 	var set = getFullSet(numberOfProperties, valuesPerProperty);
 	
 	//possible cards to chose from
-	
+	cardsToChooseFrom = []; //reset options.
 	var deck = new Deck (numberOfProperties, valuesPerProperty);
 	for (var i=0;i<optionsToChooseFrom-1;i++){
 		// var card = new Card ("" , numberOfProperties, valuesPerProperty, false);
@@ -21,9 +47,9 @@ docReady(function() {
 	}
 	
 	
-	for (var i=0;i<set.length;i++){ 
-		// deck.takeOffSpecificCard(set[i].getId());
-	}
+	// for (var i=0;i<set.length;i++){ 
+		// // deck.takeOffSpecificCard(set[i].getId());
+	// }
 	
 	//transfer card from complete solution to "cards to choose from"
 	var solutionCard = set.pop(); 
@@ -32,31 +58,24 @@ docReady(function() {
 	cardsToChooseFrom.push(solutionCard);
 	shuffle(cardsToChooseFrom); // shuffle cards
 	
-	var setShowField = document.getElementById("topField");
-	//prepare fields in dom
-	for (var i=0;i<set.length;i++){
-		addCardLocationToDom(setShowField,i);
-	}
 	
-	var bottomField = document.getElementById("bottomField");
-	for (var i=0;i<optionsToChooseFrom;i++){
-		addPossibleCardSolutionLocationToDom(bottomField, i );
-	}
 	
 	//add cards
 	for (var i=0;i<set.length;i++){
+		//cards from set.
 		showCardDom(set[i],"position"+i);
 	}
-	
 	for (var i=0;i<cardsToChooseFrom.length;i++){
+		//possible answer cards
 		showCardPossibleSolutionDom(cardsToChooseFrom[i],i);
 	}
-	
-});
+}
 
-// function guessMissingCardFromSetGame(){
-	
-// }
+
+function checkButtonClicked(number){
+	console.log(cardsToChooseFrom[number].getId() == solutionCardId);
+	guessMissingCardFromSetGame_restart();
+}
 
 //DOM
 function initGameDom(){
@@ -118,12 +137,7 @@ function showIdOfACard(card){
 	console.log(card.getId());
 }
 
-function checkButtonClicked(number){
-	// console.log(number);
-	// console.log(solutionCardId);
-	console.log(cardsToChooseFrom[number].getId() == solutionCardId);
-	
-}
+
 function getFullSet(numberOfProperties, valuesPerProperty ){
 	var completeCards= new Cards(numberOfProperties, valuesPerProperty);
 	var setBuilder = []
@@ -298,7 +312,7 @@ function Cards(numberOfProperties, valuesForEachProperty, propertiesValues){
 	
 	if (propertiesValues.length>0){
 		//SPECIAL CASE specific propertise provided in lists.
-		console.log("special case");
+		// console.log("special case");
 		if (numberOfProperties !== propertiesValues.length){
 			console.log("ASSERT ERROR provide properties in list, have a length that doesnt match the number of Properties indicated.");
 			console.log(propertiesValues);
@@ -355,7 +369,7 @@ function Cards(numberOfProperties, valuesForEachProperty, propertiesValues){
 		// console.log(this.cards);
 	}else{	
 		//NORMAL CASE
-		console.log("normal case");
+		// console.log("normal case");
 		if (numberOfProperties !== 0 && valuesForEachProperty !== 0){
 			for (var i = 0; i<Math.pow(valuesForEachProperty, numberOfProperties); i++){
 				//add new card. total number of possible cards = valuesPerProperty^numberOfProperties
