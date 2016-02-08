@@ -65,9 +65,11 @@ function addHtml(elementToAttachTo, htmlString){
 
 }
 
-function addDiv(elementToAttachTo, id){
+function addDiv(elementToAttachTo, id, className){
+	className = typeof className !== 'undefined' ? className : "none";
 	var div = document.createElement("div");
 	div.id = id;
+	div.className = className;
 	elementToAttachTo.appendChild(div);
 	return div;
 }
@@ -100,6 +102,8 @@ function addCheckBox(elementToAttachTo,id, name, checked, caption){
 	
 	
 }
+
+
 
 function addButtonToExecuteGeneralFunction(elementToAttachTo,caption,name, id, func,arg){
     var button = document.createElement("input");

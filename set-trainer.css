@@ -1,0 +1,16 @@
+.row {
+  width: 100%;
+  text-align: center; // center the content of the container
+}
+
+.card {
+
+  width: 100px;
+  display: inline-block; // display inline with abality to provide width/height
+}
+
+.cardChoice {
+
+  width: 100px;
+  display: inline-block; // display inline with abality to provide width/height
+}

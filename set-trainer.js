@@ -1,122 +1,155 @@
+var solutionCardId = "";
+var cardsToChooseFrom = [];
 docReady(function() { 
-	//console.log(checkArrayContainsEmptyArrayAsElement([[2],[7],6]));
-	// var allCards = new Cards(4,3);
-	 
-	// // // // numberOfProperties = 5; //i.e. shape, quantity, color, infill
-	// // // // valuesPerProperty = 5; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
-	// // // // testSet = [];
-	// // // // names = ["CDADA","CBADB","CAADC","CCADD"];
-	// // // // for (var i=0;i<4;i++){
-		// // // // testSet.push(new Card (names[i] , numberOfProperties, valuesPerProperty, true));	
-	// // // // }
+	numberOfProperties = 4; //i.e. shape, quantity, color, infill
+	valuesPerProperty =3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	
-	// // // // console.log(testSet);
-	// // // // // var deck = new Deck(numberOfProperties,valuesPerProperty,100,true);
-	// // // // // deck.show();
+	optionsToChooseFrom = 10;
 	
-	// // // // // var cards= new Cards(numberOfProperties, valuesPerProperty,[[],[],[],[],[]]);
-	// // // // var cards= new Cards(numberOfProperties, valuesPerProperty);
-	// // // // // setMinusOne = []
-	// // // // // for (var i=0;i<valuesPerProperty - 1;i++){
-		// // // // // var card = cards.getRandomCard();
-		// // // // // card.show();
-		// // // // // setMinusOne.push(card);
-	// // // // // }
-	// // // // // // console.log(setMinusOne);
+	//complete set
+	var set = getFullSet(numberOfProperties, valuesPerProperty);
 	
-	// // // // missingCardPropertyValues = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(testSet);
-	// // // // var fittingCards = new Cards(numberOfProperties, valuesPerProperty,missingCardPropertyValues);
-	// // // // var allFittingCards = fittingCards.getAllCards();
+	//possible cards to chose from
 	
-	// // // // for (var i=0;i<allFittingCards.length;i++){
-		// // // // allFittingCards[i].show();
-	// // // // }
-	
-	showFullSet();
+	var deck = new Deck (numberOfProperties, valuesPerProperty);
+	for (var i=0;i<optionsToChooseFrom-1;i++){
+		// var card = new Card ("" , numberOfProperties, valuesPerProperty, false);
+		deck.shuffle(); //(set[i].getId());
+		cardsToChooseFrom.push(deck.takeOffTopCard());
+		// card.show();
+		// cardsToChooseFrom.push(card);	
+	}
 	
 	
+	for (var i=0;i<set.length;i++){ 
+		// deck.takeOffSpecificCard(set[i].getId());
+	}
 	
+	//transfer card from complete solution to "cards to choose from"
+	var solutionCard = set.pop(); 
+	solutionCardId = solutionCard.getId();
 	
-	// var missingCard = new Card("",numberOfProperties, valuesPerProperty,false,missingCardPropertyValues);
-	// missingCard.setIdFromProperties();
-	// missingCard.show();
+	cardsToChooseFrom.push(solutionCard);
+	shuffle(cardsToChooseFrom); // shuffle cards
 	
+	var setShowField = document.getElementById("topField");
+	//prepare fields in dom
+	for (var i=0;i<set.length;i++){
+		addCardLocationToDom(setShowField,i);
+	}
 	
-	//get perfect set.
-
-	// var completeCards= new Cards(numberOfProperties, valuesPerProperty);
-	// setBuilder = []
-	// setBuilder.push(cards.getRandomCard());
-	// setBuilder.push(cards.getRandomCard());
+	var bottomField = document.getElementById("bottomField");
+	for (var i=0;i<optionsToChooseFrom;i++){
+		addPossibleCardSolutionLocationToDom(bottomField, i );
+	}
 	
-	// var cardsToChooseFromProperties = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
-	// var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
-	// setBuilder.push(fittingCards.getRandomCard());
+	//add cards
+	for (var i=0;i<set.length;i++){
+		showCardDom(set[i],"position"+i);
+	}
 	
-	// console.log(setBuilder);
-	// for (var i=0;i<3;i++){
-		// setBuilder[i].show();
-	// }
-	
-	// // // // var completeCards= new Cards(numberOfProperties, valuesPerProperty);
-	// // // // var setBuilder = []
-	// // // // setBuilder.push(completeCards.getRandomCard());
-	// // // // // setBuilder.push(completeCards.getRandomCard());
-	// // // // // setBuilder.push(completeCards.getRandomCard());
-	
-	// // // // var cardsToChooseFromProperties = completeCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
-	// // // // // console.log(cardsToChooseFromProperties);
-	// // // // var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
-	// // // // var allFittingCards = fittingCards.getAllCards();
-	
-	// // // // // for (var i=0;i<3;i++){
-	// // // // while(fittingCards.getNumberOfCards() >0){
-		// // // // // gameSET_getCardPropertiesThatFitProvidedCardsSoASetIsPossible();
-		// // // // console.log("---adding a card:----");
-		// // // // var pickedCard = fittingCards.getRandomCard();
-		// // // // pickedCard.show();
-		// // // // setBuilder.push (pickedCard);
-		// // // // // setBuilder.push (allFittingCards[0]);
-		// // // // // console.log(allFittingCards.length);
-		// // // // // allFittingCards[0].show();
-		
-		
-		// // // // // console.log(fittingCards.getNumberOfCards());
-		
-		// // // // cardsToChooseFromProperties = completeCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
-		
-		// // // // fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
-		// // // // allFittingCards = fittingCards.getAllCards();
-		// // // // // console.log(cardsToChooseFromProperties);
-		// // // // // console.log(setBuilder);
-		
-		// // // // // for (var j=0;j<setBuilder.length;j++){
-			// // // // // setBuilder[j].show();
-		// // // // // }
-		// // // // // fittingCards.show();
-	// // // // }
-	
-	// // // // for (var i=0;i<setBuilder.length;i++){
-		// // // // setBuilder[i].show();
-	// // // // }
-	// // // // console.log("fitting cards for set:");
-	// for (var i=0;i<allFittingCards.length;i++){
-		// allFittingCards[i].show();
-	// }
-	// console.log(setMinusOne);
-	
-	// missingCardPropertyValues = cards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
-	// fittingCards = new Cards (numberOfProperties, valuesPerProperty, missingCardPropertyValues);
-	// console.log(fittingCards.show());
-	// // var missingCard = new Card("",numberOfProperties, valuesPerProperty,false,missingCardPropertyValues);
-	// missingCard.setIdFromProperties();
-	// missingCard.show();
+	for (var i=0;i<cardsToChooseFrom.length;i++){
+		showCardPossibleSolutionDom(cardsToChooseFrom[i],i);
+	}
 	
 });
 
-function showFullSet(){
-	numberOfProperties = 6; //i.e. shape, quantity, color, infill
-	valuesPerProperty = 6; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
+// function guessMissingCardFromSetGame(){
+	
+// }
+
+//DOM
+function initGameDom(){
+	var setShowField = document.getElementById("topField");
+	addDiv(setShowField, "card");
+		
+}
+
+function showCardDom(card, id){
+	var cardDiv = document.getElementById(id);
+	cardDiv.innerHTML = "<p>"+ card.getId() +"</p>";
+}
+
+
+function showCardPossibleSolutionDom(card, position){
+	// var button = document.getElementById("optionButton"+position);
+	// button.addEventListener('click', function(){
+    // showIdOfACard(card); });
+	
+	showCardDom(card, "position_option_"+ position);
+	// var setShowField = document.getElementById();
+}
+
+// function addCardToDom(elementToAttachTo,card){
+	// //create a div, show card and add it to the DOM
+	// var cardDiv = addDiv(elementToAttachTo, card.getId(),  "card");
+	// addHtml(cardDiv, "<p>"+ card.getId() +"</p>");
+	
+// }
+
+function addCardLocationToDom(elementToAttachTo,cardPosition){
+	//create a div, show card and add it to the DOM
+	var cardDiv = addDiv(elementToAttachTo, "position" + cardPosition,  "card");
+	
+	// cardDiv.innerHTML = div.innerHTML + 'Extra stuff';
+	cardDiv.innerHTML = '<p>empty card</p>';
+	
+}
+
+// function addMultipleChoiceToDom(elementToAttachTo,card){
+	// var optionContainer = addDiv(elementToAttachTo, card.getId()+"option","cardChoice");
+	// //add card
+	// addCardToDom(optionContainer, card);
+	// //add button
+	// addButtonToExecuteGeneralFunction(optionContainer,"Chose", card.getId(), card.getId()+100, showIdOfACard, card);
+	
+// }
+function addPossibleCardSolutionLocationToDom(elementToAttachTo,position){
+	var optionContainer = addDiv(elementToAttachTo, "optionPosition" + position,"cardChoice");
+	var card  = new Card ("A" , 1, 1, true);
+	//add card
+	addCardLocationToDom(optionContainer, "_option_"+position);
+	//add button
+	addButtonToExecuteGeneralFunction(optionContainer,"Chose", "optionButton", "optionButton"+ position, checkButtonClicked, position);
+	
+}
+
+function showIdOfACard(card){
+	console.log(card.getId());
+}
+
+function checkButtonClicked(number){
+	// console.log(number);
+	// console.log(solutionCardId);
+	console.log(cardsToChooseFrom[number].getId() == solutionCardId);
+	
+}
+function getFullSet(numberOfProperties, valuesPerProperty ){
+	var completeCards= new Cards(numberOfProperties, valuesPerProperty);
+	var setBuilder = []
+	setBuilder.push(completeCards.getRandomCard());
+	var cardsToChooseFromProperties = completeCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+	var fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+	var allFittingCards = fittingCards.getAllCards();
+	
+	while(fittingCards.getNumberOfCards() >0){
+	
+		var pickedCard = fittingCards.getRandomCard();
+		setBuilder.push (pickedCard);
+		cardsToChooseFromProperties = completeCards.gameSET_getPropertiesOfMatchingCardsForAGivenAmountOfCards(setBuilder);
+		if (checkArrayContainsEmptyArrayAsElement(cardsToChooseFromProperties)){
+			fittingCards = new Cards(0, 0);
+		}else{
+			fittingCards = new Cards(numberOfProperties, valuesPerProperty,cardsToChooseFromProperties);
+		}
+		allFittingCards = fittingCards.getAllCards();
+	}
+	return setBuilder;
+}
+
+function showFullSet(numberOfProperties, valuesPerProperty){
+	// numberOfProperties = 4; //i.e. shape, quantity, color, infill
+	// valuesPerProperty = 3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	var completeCards= new Cards(numberOfProperties, valuesPerProperty);
 	var setBuilder = []
 	setBuilder.push(completeCards.getRandomCard());
@@ -225,6 +258,14 @@ function Deck(properties, valuesForEachProperty,cardsPerDeck,isCardRepeatable){
 	}
 }
 	
+Deck.prototype.takeOffSpecificCard = function(id){
+	this.deck.remove(id);
+	// for (var i=0;i<this.getSize;i++){
+		// if (this.deck[i].getId() = id;
+		
+	// }
+	
+}
 Deck.prototype.takeOffTopCard = function(){
 	return this.deck.pop();
 }
@@ -546,7 +587,7 @@ function Card (id , numberOfProperties, numberOfValuesForEachProperty, isPropert
 	}
 		
 	if (properties.length >0 ){
-		//if properties provided: check lenght, and if all values are "valid"
+		//if properties provided: check length, and if all values are "valid"
 		console.log("aha");
 		console.log(properties);
 		if (properties.length == numberOfProperties){
@@ -581,6 +622,7 @@ function Card (id , numberOfProperties, numberOfValuesForEachProperty, isPropert
 Card.prototype.getNumberOfProperties = function(){
 	return this.properties.length;
 }
+
 Card.prototype.getPropertyValue = function(property){
 	return this.properties[property];
 }
@@ -632,4 +674,9 @@ Card.prototype.show = function(){
 	}else{
 		console.log(this.properties.join("-"));
 	}
+}
+
+Card.prototype.getId = function(){
+	
+	return this.id;
 }

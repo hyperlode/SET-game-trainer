@@ -233,7 +233,7 @@ Array.prototype.allValuesUnique = function () {
 }
 
 Array.prototype.remove = function() {
-
+	//remove specific element.
 	// var ary = ['three', 'seven', 'eleven'];
 
 	// ary.remove('seven');
