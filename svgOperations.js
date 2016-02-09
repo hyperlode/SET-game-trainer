@@ -132,22 +132,26 @@ function add_pattern_vertical_lines(svgElement, color, strokeWidth, strokeDistan
 	// </pattern>
 }
 
-function add_polygon(svgElement,pointsAsString,strokeColor ,infill,xOffset,  yOffset){
+function add_polygon(svgElement,pointsAsString,strokeColor ,infill,xOffset,  yOffset, scale){
 	//http://cssplant.com/clip-path-generator   to get the points easily
 	pointsAsString = typeof pointsAsString !== 'undefined' ? pointsAsString : "200 200,300 350,400 200,300 50";
 	xOffset = typeof xOffset !== 'undefined' ? xOffset : 0;
 	yOffset = typeof yOffset !== 'undefined' ? yOffset : 0;
 	infill = typeof infill !== 'undefined' ? infill : "white";
+	scale = typeof scale !== 'undefined' ? scale : 1;
 	var shape = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 	shape.setAttribute("points", pointsAsString);
 	// shape.setAttribute("y", yOffset);
-	shape.setAttribute("transform" , 'translate(' + xOffset +' '+ yOffset + ")");
+	shape.setAttribute("transform" , 'translate(' + xOffset +' '+ yOffset + ")" + 'scale(' + scale +' '+ scale + ")");
+	
+	//
 	
 	// shape.setAttribute("points", "20,20 40,25 60,40 80,120 120,140 200,180");
 	// shape.setAttribute("style", "fill:none;stroke:black;stroke-width:3");
 	// shape.setAttribute("style", " fill:url(#lines)");
 	// shape.setAttribute("style", " fill:url(#vertical_hatch)");
-	shape.setAttribute("style", " stroke: "+ strokeColor +";fill:"+ infill +"");
+	shape.setAttribute("style", " stroke: "+ strokeColor +";fill:"+ infill +";stroke-width: " + scale/1000);
+	
 		
 	svgElement.appendChild(shape);
 }
