@@ -1,5 +1,8 @@
 var solutionCardId = "";
 var cardsToChooseFrom = [];
+var CARDS_TO_CHOOSE_FROM = 9;
+var NUMBER_OF_PROPERTIES = 4;
+var NUMBER_OF_VALUES_PER_PROPERTY = 3;
 docReady(function() { 
 	guessMissingCardFromSetGame_start();
 	
@@ -13,9 +16,9 @@ docReady(function() {
 
 
 function guessMissingCardFromSetGame_start(){
-	numberOfProperties = 4; //i.e. shape, quantity, color, infill
-	valuesPerProperty =3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
-	optionsToChooseFrom = 10;
+	numberOfProperties = NUMBER_OF_PROPERTIES; //i.e. shape, quantity, color, infill
+	valuesPerProperty =NUMBER_OF_VALUES_PER_PROPERTY; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
+	var optionsToChooseFrom = CARDS_TO_CHOOSE_FROM;
 	
 	
 	var setShowField = document.getElementById("topField");
@@ -26,6 +29,7 @@ function guessMissingCardFromSetGame_start(){
 	}
 	
 	var bottomField = document.getElementById("bottomField");
+	bottomField.innerHTML = "<p>Chose the card that fits the top cards, according to the SET game rules: </p>";
 	for (var i=0;i<optionsToChooseFrom;i++){
 		addPossibleCardSolutionLocationToDom(bottomField, i );
 	}
@@ -33,9 +37,9 @@ function guessMissingCardFromSetGame_start(){
 }
 
 function guessMissingCardFromSetGame_restart(){
-	numberOfProperties = 4; //i.e. shape, quantity, color, infill
-	valuesPerProperty =3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
-	optionsToChooseFrom = 10;
+	numberOfProperties = NUMBER_OF_PROPERTIES; //i.e. shape, quantity, color, infill
+	valuesPerProperty =NUMBER_OF_VALUES_PER_PROPERTY; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
+	var optionsToChooseFrom = CARDS_TO_CHOOSE_FROM;
 	
 	//complete set
 	var set = getFullSet(numberOfProperties, valuesPerProperty);
@@ -78,7 +82,6 @@ function guessMissingCardFromSetGame_restart(){
 
 
 function checkButtonClicked(number){
-	
 	if (cardsToChooseFrom[number].getId() == solutionCardId){
 		console.log(cardsToChooseFrom[number].getId() == solutionCardId);
 		guessMissingCardFromSetGame_restart();
@@ -153,9 +156,12 @@ function initGameDom(){
 
 function showCardDom(card, elementToAttachToId){
 	var cardDiv = document.getElementById(elementToAttachToId);
-	cardDiv.innerHTML = "<p>"+ card.getId() +"</p>";
+	//cardId as title
+	//cardDiv.innerHTML = "<p>"+ card.getId() +"</p>";
+	cardDiv.innerHTML = "";
+	//card as svg
 	addCardSvg(cardDiv,100, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
-	//addCardSvg(div, 100, "ABCA",2,1,2,2);
+	
 }
 
 
@@ -168,37 +174,30 @@ function showCardPossibleSolutionDom(card, position){
 	// var setShowField = document.getElementById();
 }
 
-// function addCardToDom(elementToAttachTo,card){
-	// //create a div, show card and add it to the DOM
-	// var cardDiv = addDiv(elementToAttachTo, card.getId(),  "card");
-	// addHtml(cardDiv, "<p>"+ card.getId() +"</p>");
-	
-// }
-
 function addCardLocationToDom(elementToAttachTo,cardPosition){
 	//create a div, show card and add it to the DOM
 	var cardDiv = addDiv(elementToAttachTo, "position" + cardPosition,  "card");
 	
-	// cardDiv.innerHTML = div.innerHTML + 'Extra stuff';
-	cardDiv.innerHTML = '<p>empty card</p>';
+	  
 	
+	// cardDiv.innerHTML = div.innerHTML + 'Extra stuff';
+	cardDiv.innerHTML = '';
+	//cardDiv.innerHTML = '<p>empty card</p>';
+	return cardDiv;
 }
 
-// function addMultipleChoiceToDom(elementToAttachTo,card){
-	// var optionContainer = addDiv(elementToAttachTo, card.getId()+"option","cardChoice");
-	// //add card
-	// addCardToDom(optionContainer, card);
-	// //add button
-	// addButtonToExecuteGeneralFunction(optionContainer,"Chose", card.getId(), card.getId()+100, showIdOfACard, card);
-	
-// }
 function addPossibleCardSolutionLocationToDom(elementToAttachTo,position){
 	var optionContainer = addDiv(elementToAttachTo, "optionPosition" + position,"cardChoice");
 	var card  = new Card ("A" , 1, 1, true);
 	//add card
-	addCardLocationToDom(optionContainer, "_option_"+position);
+	var cardDiv = addCardLocationToDom(optionContainer, "_option_"+position);
+	
+	//add click event to card
+	cardDiv.addEventListener('click', function(){
+    checkButtonClicked(position); });
+	
 	//add button
-	addButtonToExecuteGeneralFunction(optionContainer,"Chose", "optionButton", "optionButton"+ position, checkButtonClicked, position);
+	//addButtonToExecuteGeneralFunction(optionContainer,"Chose", "optionButton", "optionButton"+ position, checkButtonClicked, position);
 	
 }
 
