@@ -14,3 +14,9 @@
   width: 100px;
   display: inline-block; // display inline with abality to provide width/height
 }
+
+/* #lines path
+{
+  stroke: white;
+  stroke-width: 2px;
+ } */

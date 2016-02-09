@@ -3,6 +3,11 @@ var cardsToChooseFrom = [];
 docReady(function() { 
 	guessMissingCardFromSetGame_start();
 	
+	//add_pattern_vertical_lines(setTestSvg);
+	//add_polygon(setTestSvg);
+	var div = document.getElementById("svgTest");
+	//addCardSvg(div, 100, "ABCA",2,1,2,2);
+	console.log(svgTest);
 });
 
 
@@ -73,20 +78,80 @@ function guessMissingCardFromSetGame_restart(){
 
 
 function checkButtonClicked(number){
-	console.log(cardsToChooseFrom[number].getId() == solutionCardId);
-	guessMissingCardFromSetGame_restart();
+	
+	if (cardsToChooseFrom[number].getId() == solutionCardId){
+		console.log(cardsToChooseFrom[number].getId() == solutionCardId);
+		guessMissingCardFromSetGame_restart();
+	}else{
+		console.log("wrong");
+	}
 }
 
 //DOM
+
+function addCardSvg(elementToAttachTo,width,id,quantityValue,shapeValue,colorValue, infillValue){
+	//ratio:  width * 1.45 = height
+	var height = width * 1.45;
+	
+	
+	//add card
+	var outlineStrokeWidth = 4;
+	addSvg(elementToAttachTo,id,width,height,"white","white");
+	var card = document.getElementById(id);
+	
+	//add card outline
+	var cardOutline = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+	cardOutline.setAttribute('width', width-outlineStrokeWidth); 
+	cardOutline.setAttribute('height', height - outlineStrokeWidth); 
+	cardOutline.setAttribute('rx', width/14); 
+	cardOutline.setAttribute('ry', width/14); 
+	cardOutline.setAttribute('x', outlineStrokeWidth/2); 
+	cardOutline.setAttribute('y', outlineStrokeWidth/2); 
+	cardOutline.setAttribute('style',  'fill:white;stroke:black;stroke-width:2;opacity:1'); 
+	card.appendChild(cardOutline);
+	peanutPoints = "16 28,16 24,16 24,16 23,16 23,16 20,16 20,17 20,17 19,20 19,20 19,21 19,22 20,23 20,23 20,24 20,24 20,25 21,27 21,27 22,28 22,28 23,28 23,29 23,29 24,30 24,30 24,31 24,31 25,32 25,32 26,33 26,34 27,35 27,35 28,36 28,36 28,37 29,48 29,48 28,48 28,51 28,51 28,52 28,52 26,52 26,53 26,53 25,54 25,54 24,55 24,56 23,56 23,57 22,57 21,58 21,59 20,59 20,60 20,60 16,60 16,60 12,60 12,59 12,59 10,58 10,58 9,57 8,56 8,56 8,56 6,52 6,52 6,52 7,51 7,50 8,48 8,48 9,48 9,48 10,47 10,46 11,45 11,45 12,44 12,44 12,40 12,40 12,38 12,38 11,36 11,36 11,34 9,33 9,32 8,32 8,31 7,31 6,29 6,29 5,28 5,27 4,26 4,25 3,25 2,24 2,24 2,20 2,20 2,19 3,16 3,16 3,15 4,14 4,14 4,12 4,12 4,12 5,11 5,9 7,8 7,8 8,8 8,7 9,6 9,6 11,5 11,5 12,5 12,4 13,4 16,4 16,4 19,5 19,5 20,5 20,6 21,6 22,7 22,7 24,10 25,10 26,12 27,12 27,12 28,16 28";
+	diamondPoints = "0 20 , 20 30 , 40 20, 20 10" ; //"200 200,300 350,400 200,300 50" 
+	pillPoints = "54 35,64 33,69 28,72 20,71 13,63 10,17 8,8 10,4 17,6 28,12 36";
+	var shapesByValue= [diamondPoints, pillPoints, peanutPoints];
+	
+	var color = ["red","green","blue"];
+	
+	add_pattern_vertical_lines(card, color[colorValue],1, 5);
+	
+	fill_blank = "white";
+	fill_solid = color[colorValue];
+	fill_hatch = "url(#vertical_hatch)"; //defined in svgOperations...
+	var fillByValue = [fill_blank, fill_solid, fill_hatch];
+	
+	//add properties
+	for (var i=0; i<quantityValue+1;i++){
+		//add shape
+		//peanutje
+		//peanutPoints = "510 203,525 193,560 177,597 185,633 206,674 202,705 173,719 133,711 107,694 111,656 133,618 133,573 112,537 111,504 127,494 165,499 201";
+		
+		add_polygon(card,shapesByValue[shapeValue], color[colorValue],fillByValue[infillValue],10, 20 + i* 30);
+	}
+	
+	
+	
+	// console.log(card);
+	//"M166.8369141,235.5478516c0,3.7773438-3.0869141,6.8691406-6.8710938,6.8691406H7.1108398c-3.7749023,0-6.8608398-3.0917969-6.8608398-6.8691406V7.1201172C0.25,3.3427734,3.3359375,0.25,7.1108398,0.25h152.8549805    c3.7841797,0,6.8710938,3.0927734,6.8710938,6.8701172v228.4277344z"
+	// <path xmlns="http://www.w3.org/2000/svg" style="fill:#FFFFFF;stroke-width:0.5;" d="M166.8369141,235.5478516c0,3.7773438-3.0869141,6.8691406-6.8710938,6.8691406H7.1108398c-3.7749023,0-6.8608398-3.0917969-6.8608398-6.8691406V7.1201172C0.25,3.3427734,3.3359375,0.25,7.1108398,0.25h152.8549805    c3.7841797,0,6.8710938,3.0927734,6.8710938,6.8701172v228.4277344z" id="path5"/>
+	
+	
+}
+
 function initGameDom(){
 	var setShowField = document.getElementById("topField");
 	addDiv(setShowField, "card");
 		
 }
 
-function showCardDom(card, id){
-	var cardDiv = document.getElementById(id);
+function showCardDom(card, elementToAttachToId){
+	var cardDiv = document.getElementById(elementToAttachToId);
 	cardDiv.innerHTML = "<p>"+ card.getId() +"</p>";
+	addCardSvg(cardDiv,100, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
+	//addCardSvg(div, 100, "ABCA",2,1,2,2);
 }
 
 
@@ -253,7 +318,7 @@ function Deck(properties, valuesForEachProperty,cardsPerDeck,isCardRepeatable){
 	
 	//init deck
 	if (cardsPerDeck == this.allCards.getNumberOfCards()){
-		console.log("complete pack");
+		// console.log("complete pack");
 		this.deck = this.allCards.getAllCards();
 		this.shuffle();
 	}else if (isCardRepeatable){
@@ -661,7 +726,7 @@ Card.prototype.setPropertiesFromId = function (){
 			console.log("ASSERT ERROR: provided value derived from id is not a valid value, value: " + value );
 			throw "aborted program on assert error.";
 		}
-		console.log(this.numberOfValuesForEachProperty -1);
+		// console.log(this.numberOfValuesForEachProperty -1);
 		this.properties[i] = this.id.charCodeAt(i) - 65 ; //ascii A=65
 	}
 }
@@ -691,6 +756,5 @@ Card.prototype.show = function(){
 }
 
 Card.prototype.getId = function(){
-	
 	return this.id;
 }
