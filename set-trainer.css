@@ -1,3 +1,7 @@
+body {
+	text-align:center;
+}
+
 .row {
   width: 100%;
   text-align: center; // center the content of the container
