@@ -3,14 +3,15 @@ var cardsToChooseFrom = [];
 var CARDS_TO_CHOOSE_FROM = 9;
 var NUMBER_OF_PROPERTIES = 4;
 var NUMBER_OF_VALUES_PER_PROPERTY = 3;
+var CARD_WIDTH = 100;
 docReady(function() { 
 	guessMissingCardFromSetGame_start();
 	
 	//add_pattern_vertical_lines(setTestSvg);
 	//add_polygon(setTestSvg);
-	var div = document.getElementById("svgTest");
+	//var div = document.getElementById("svgTest");
 	//addCardSvg(div, 100, "ABCA",2,1,2,2);
-	console.log(svgTest);
+	//console.log(svgTest);
 });
 
 
@@ -19,7 +20,6 @@ function guessMissingCardFromSetGame_start(){
 	numberOfProperties = NUMBER_OF_PROPERTIES; //i.e. shape, quantity, color, infill
 	valuesPerProperty =NUMBER_OF_VALUES_PER_PROPERTY; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	var optionsToChooseFrom = CARDS_TO_CHOOSE_FROM;
-	
 	
 	var setShowField = document.getElementById("topField");
 	//prepare fields in dom
@@ -129,14 +129,17 @@ function addCardSvg(elementToAttachTo,width,id,quantityValue,shapeValue,colorVal
 	fill_solid = color[colorValue];
 	fill_hatch = "url(#vertical_hatch)"; //defined in svgOperations...
 	var fillByValue = [fill_blank, fill_solid, fill_hatch];
-	
+	var symbolWidth = width/2;
+	var symbolHeightIncludingWhiteSpace = symbolWidth/2.7;
+	var cardsQuantity = quantityValue+1
 	//add properties
-	for (var i=0; i<quantityValue+1;i++){
-		//add shape
-		//peanutje
-		//peanutPoints = "510 203,525 193,560 177,597 185,633 206,674 202,705 173,719 133,711 107,694 111,656 133,618 133,573 112,537 111,504 127,494 165,499 201";
+	for (var i=0; i<cardsQuantity;i++){
+		//console.log(i);
+		var multiplier = -cardsQuantity + 1 + i * 2;
+		var dy = height/2 -symbolHeightIncludingWhiteSpace/1.5 +  multiplier  * symbolHeightIncludingWhiteSpace; // symbols always in middle.   -symbolHeightIncludingWhiteSpace/1.5 is by trial and error :(
 		
-		add_polygon(card,shapesByValue[shapeValue], color[colorValue],fillByValue[infillValue],10, 20 + i* 30, width/2);
+		//add shape
+		add_polygon(card,shapesByValue[shapeValue], color[colorValue],fillByValue[infillValue],symbolWidth/2, dy, symbolWidth);
 	}
 	
 	
@@ -160,7 +163,7 @@ function showCardDom(card, elementToAttachToId){
 	//cardDiv.innerHTML = "<p>"+ card.getId() +"</p>";
 	cardDiv.innerHTML = "";
 	//card as svg
-	addCardSvg(cardDiv,100, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
+	addCardSvg(cardDiv,CARD_WIDTH, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
 	
 }
 
