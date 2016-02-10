@@ -1,26 +1,123 @@
 var solutionCardId = "";
+var solutionCardIds = [];
+var userChosenCards = [];
+var numberOfCardsMissingFromSet = 0;
+var cardsFromSetAsGiven = [];
 var cardsToChooseFrom = [];
-var CARDS_TO_CHOOSE_FROM = 9;
+var CARDS_TO_CHOOSE_FROM = 10;
 var NUMBER_OF_PROPERTIES = 4;
 var NUMBER_OF_VALUES_PER_PROPERTY = 3;
 var CARD_WIDTH = 100;
+
+//DOM
+// var MAX_CARDS_PER_ROW = 5;
+
 docReady(function() { 
-	guessMissingCardFromSetGame_start();
+	//guessMissingCardFromSetGame_start();
 	
 	//add_pattern_vertical_lines(setTestSvg);
 	//add_polygon(setTestSvg);
 	//var div = document.getElementById("svgTest");
 	//addCardSvg(div, 100, "ABCA",2,1,2,2);
 	//console.log(svgTest);
+	
+	// var set  =  getFullSet(NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY);
+	// console.log(set);
+	// for (var i=0;i<set.length;i++){
+		// set[i].show();
+	// }
+	// console.log(areCardsASet(set, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY));
+	// //possible cards to chose from
+		// cardsToChooseFrom = []; //reset options.
+	// while(!areCardsASet(cardsToChooseFrom, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY)){
+		// cardsToChooseFrom = [];
+		// var deck = new Deck (NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY);
+		// for (var i=0;i<3;i++){
+			// deck.shuffle(); //(set[i].getId());
+			// cardsToChooseFrom.push(deck.takeOffTopCard());
+		// }
+		// //console.log(cardsToChooseFrom);
+		// console.log(areCardsASet(cardsToChooseFrom, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY));
+	// }
+	guessMissingCardsFromSetGame_start(2,true);
+	
 });
 
 
+
+
+function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
+	gameStartup = typeof gameStartup !== 'undefined' ? gameStartup : false;
+	numberOfProperties = NUMBER_OF_PROPERTIES; //i.e. shape, quantity, color, infill
+	valuesPerProperty =NUMBER_OF_VALUES_PER_PROPERTY; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
+	
+	var numberOfCardsToGuess = numberOfCardsToGuess;
+	var optionsToChooseFrom = CARDS_TO_CHOOSE_FROM;
+	
+	
+	if (gameStartup){
+		//if first round, add elements to the dom
+		numberOfCardsMissingFromSet = numberOfCardsToGuess;
+		var setShowField = document.getElementById("topField");
+		//prepare fields in dom
+		//set length is always equal to number of values per property
+		for (var i=0;i<valuesPerProperty - numberOfCardsToGuess;i++){
+			addCardLocationToDom(setShowField,i);
+		}
+		
+		var bottomField = document.getElementById("bottomField");
+		bottomField.innerHTML = "<p>Chose the card(s) that fits the top cards, according to the SET game rules: </p>";
+		for (var i=0;i<optionsToChooseFrom;i++){
+			addPossibleCardSolutionLocationToDom(bottomField, i );
+		}
+		
+	}
+	
+	
+	//complete set
+	var set = getFullSet(numberOfProperties, valuesPerProperty);
+	
+	//possible cards to chose from
+	cardsToChooseFrom = []; //reset options.
+	var deck = new Deck (numberOfProperties, valuesPerProperty);
+	for (var i=0;i<optionsToChooseFrom-numberOfCardsToGuess;i++){
+		deck.shuffle(); //(set[i].getId());
+		cardsToChooseFrom.push(deck.takeOffTopCard());
+	}
+	//reset the cards the user has clicked.
+	userChosenCards = [];
+	
+	//transfer solution cards from complete solution to "cards to choose from"
+	solutionCardIds = [];
+	for (var i=0;i<numberOfCardsToGuess;i++){
+		var solutionCard = set.pop(); 
+		solutionCardIds.push(solutionCard.getId());
+		cardsToChooseFrom.push(solutionCard);
+	}
+	shuffle(cardsToChooseFrom); // shuffle cards
+	
+	cardsFromSetAsGiven = set; // the set cards that are shown to the user are memorized as globals.
+	
+	//add cards
+	for (var i=0;i<set.length;i++){
+		//cards from set.
+		showCardDom(set[i],"position"+i);
+	}
+	for (var i=0;i<cardsToChooseFrom.length;i++){
+		//possible answer cards
+		showCardPossibleSolutionDom(cardsToChooseFrom[i],i);
+	}
+	
+	
+}
+
+//==================game =========================
 
 function guessMissingCardFromSetGame_start(){
 	numberOfProperties = NUMBER_OF_PROPERTIES; //i.e. shape, quantity, color, infill
 	valuesPerProperty =NUMBER_OF_VALUES_PER_PROPERTY; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	var optionsToChooseFrom = CARDS_TO_CHOOSE_FROM;
-	
+	numberOfCardsMissingFromSet = 1;
 	var setShowField = document.getElementById("topField");
 	//prepare fields in dom
 	//set length is always equal to number of values per property
@@ -48,17 +145,9 @@ function guessMissingCardFromSetGame_restart(){
 	cardsToChooseFrom = []; //reset options.
 	var deck = new Deck (numberOfProperties, valuesPerProperty);
 	for (var i=0;i<optionsToChooseFrom-1;i++){
-		// var card = new Card ("" , numberOfProperties, valuesPerProperty, false);
 		deck.shuffle(); //(set[i].getId());
 		cardsToChooseFrom.push(deck.takeOffTopCard());
-		// card.show();
-		// cardsToChooseFrom.push(card);	
 	}
-	
-	
-	// for (var i=0;i<set.length;i++){ 
-		// // deck.takeOffSpecificCard(set[i].getId());
-	// }
 	
 	//transfer card from complete solution to "cards to choose from"
 	var solutionCard = set.pop(); 
@@ -66,9 +155,7 @@ function guessMissingCardFromSetGame_restart(){
 	
 	cardsToChooseFrom.push(solutionCard);
 	shuffle(cardsToChooseFrom); // shuffle cards
-	
-	
-	
+		
 	//add cards
 	for (var i=0;i<set.length;i++){
 		//cards from set.
@@ -80,13 +167,32 @@ function guessMissingCardFromSetGame_restart(){
 	}
 }
 
-
 function checkButtonClicked(number){
-	if (cardsToChooseFrom[number].getId() == solutionCardId){
-		console.log(cardsToChooseFrom[number].getId() == solutionCardId);
-		guessMissingCardFromSetGame_restart();
+	
+	if (numberOfCardsMissingFromSet == 1){
+		if (cardsToChooseFrom[number].getId() == solutionCardId){
+			console.log(cardsToChooseFrom[number].getId() == solutionCardId);
+			guessMissingCardFromSetGame_restart();
+		}else{
+			console.log("wrong");
+		}
 	}else{
-		console.log("wrong");
+		
+		userChosenCards.push(cardsToChooseFrom[number]);
+		if (userChosenCards.length == numberOfCardsMissingFromSet){
+			//user has chosen number of cards
+			userChosenCards.push.apply(userChosenCards, cardsFromSetAsGiven);
+			if (areCardsASet( userChosenCards,NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY)){
+				console.log("found!");
+				userChosenCards = [];
+				guessMissingCardsFromSetGame_start(numberOfCardsMissingFromSet); //restart the game
+				
+			}else{
+				console.log("wrong");
+				console.log(userChosenCards);
+				userChosenCards = [];
+			}
+		}
 	}
 }
 
@@ -204,6 +310,68 @@ function addPossibleCardSolutionLocationToDom(elementToAttachTo,position){
 	
 }
 
+
+//----------------------------functionality--------
+
+
+
+
+function areCardsASet(cards ,  numberOfProperties , number_of_values_per_property ){
+	var cardsPerSet = number_of_values_per_property;
+	
+	//check if length is ok, if not, then already for sure not a set (even when it is longer, and potentially contains a set!)
+	if (cards.length !== cardsPerSet){
+		return false;
+	}	
+	//analyse properties of given cards 
+	if (cards.length == 1){
+		return true; //if only one card, and a set contains only one card, then: always true!
+	}
+	
+	// possibleCardPropertyValues = []; //store all cards
+	
+	// var neededPropertyValues = []; //for each property valid value(s) for the given cards to create a set
+	var setRequirementsOkForEachProperty = [];
+	for (var i =0;i<numberOfProperties; i++){
+		//assume false for requirements met for each property
+		setRequirementsOkForEachProperty.push(false);
+	}
+		
+	for (var i =0;i<numberOfProperties; i++){
+		//get properties from given cards
+		var propertyValues = []; // for one property all values of this set minus one card.
+		for (var j =0;j<cards.length ; j++){	
+			propertyValues.push(cards[j].getPropertyValue(i));
+		}
+		
+		if (propertyValues.allValuesSame() ){
+			setRequirementsOkForEachProperty[i] = true; //simply the same value
+		}else if (propertyValues.allValuesUnique ()){
+			setRequirementsOkForEachProperty[i] = true;
+		}else{
+			//if all values not unique or all the same, for sure not a set!
+			return false;
+		}
+	}
+	
+	for (var i =0;i<numberOfProperties.length; i++){
+		//assume false for requirements met for each property
+		if (!setRequirementsOkForEachProperty[i]){
+			return false; // if one of the properties was not true, no set
+		}
+	}
+	
+	return true;
+}
+
+
+
+
+
+
+
+
+
 function showIdOfACard(card){
 	console.log(card.getId());
 }
@@ -276,7 +444,7 @@ function showFullSet(numberOfProperties, valuesPerProperty){
 
 
 function showAGenuineSetSet(){
-	//get perfect set.
+	//get perfect set. from the game SET 
 	numberOfProperties = 4; //i.e. shape, quantity, color, infill
 	valuesPerProperty = 3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	var cards= new Cards(numberOfProperties, valuesPerProperty);
