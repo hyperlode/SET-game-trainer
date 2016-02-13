@@ -102,7 +102,7 @@ function add_pattern_diagonal_lines(svgElement){
 	
 	svgElement.appendChild(pattern);
 }
-function add_pattern_vertical_lines(svgElement, color, strokeWidth, strokeDistance){
+function add_pattern_vertical_lines(svgElement, id, color, strokeWidth, strokeDistance){
 	color = typeof color !== 'undefined' ? color : "black";
 	strokeWidth   = typeof strokeWidth !== 'undefined' ? strokeWidth : 1;
 	strokeDistance = typeof strokeDistance !== 'undefined' ? strokeDistance : 10;
@@ -110,7 +110,7 @@ function add_pattern_vertical_lines(svgElement, color, strokeWidth, strokeDistan
 	//and dont forget to add this pattern as a def to the svg!
 	
 	var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-	pattern.setAttribute('id', "vertical_hatch");
+	pattern.setAttribute('id', id);
     pattern.setAttribute('patternUnits', 'userSpaceOnUse');
     pattern.setAttribute('width', strokeDistance);
     pattern.setAttribute('height',strokeDistance);
@@ -154,6 +154,18 @@ function add_polygon(svgElement,pointsAsString,strokeColor ,infill,xOffset,  yOf
 	
 		
 	svgElement.appendChild(shape);
+}
+
+function add_text(svgElement, text, color, size, x,y, font){ //, xOffset, yOffset
+	var shape = document.createElementNS("http://www.w3.org/2000/svg", "text");
+	
+	shape.setAttribute("font-size",size);
+	shape.setAttribute("fill",color);
+	shape.setAttribute("x",x);
+	shape.setAttribute("y",y);
+	shape.setAttribute("font-family",font); //font-family="Verdana"
+	shape.textContent = text;
+	svgElement.appendChild(shape);	
 }
 
 

@@ -65,6 +65,21 @@ function addHtml(elementToAttachTo, htmlString){
 
 }
 
+ function delay(ms) {
+	//terrible delay! use setTimeout( function_reference, timeoutMillis );  to release processor during delay!!!
+	//http://stackoverflow.com/questions/24849/is-there-some-way-to-introduce-a-delay-in-javascript
+	var cur_d = new Date();
+	var cur_ticks = cur_d.getTime();
+	var ms_passed = 0;
+	while(ms_passed < ms) {
+		var d = new Date();  // Possible memory leak?
+		var ticks = d.getTime();
+		ms_passed = ticks - cur_ticks;
+		// d = null;  // Prevent memory leak?
+	}
+}
+
+
 function addDiv(elementToAttachTo, id, className){
 	className = typeof className !== 'undefined' ? className : "none";
 	var div = document.createElement("div");

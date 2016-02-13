@@ -1,45 +1,94 @@
 var solutionCardId = "";
+var solutionCardIds = [];
+var userChosenCards = [];
+var userChosenCardsPostions = [];
+var numberOfCardsMissingFromSet ;
+var cardsFromSetAsGiven = [];
 var cardsToChooseFrom = [];
-var CARDS_TO_CHOOSE_FROM = 9;
+var CARDS_TO_CHOOSE_FROM = 12;
 var NUMBER_OF_PROPERTIES = 4;
 var NUMBER_OF_VALUES_PER_PROPERTY = 3;
 var CARD_WIDTH = 100;
+
+// clientservices@tangerine.ca
+//DOM
+var MAX_CARDS_PER_ROW = 4;
+// var GAME_TYPE = "addCardSvg_special_Brainfuck";
+var GAME_TYPE = "cards_classic_SET";
+var SET_CARDS_TO_GUESS = 3;
+
 docReady(function() { 
-	guessMissingCardFromSetGame_start();
+	//guessMissingCardFromSetGame_start();
 	
 	//add_pattern_vertical_lines(setTestSvg);
 	//add_polygon(setTestSvg);
 	//var div = document.getElementById("svgTest");
 	//addCardSvg(div, 100, "ABCA",2,1,2,2);
 	//console.log(svgTest);
+	
+	// var set  =  getFullSet(NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY);
+	// console.log(set);
+	// for (var i=0;i<set.length;i++){
+		// set[i].show();
+	// }
+	// console.log(areCardsASet(set, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY));
+	// //possible cards to chose from
+		// cardsToChooseFrom = []; //reset options.
+	// while(!areCardsASet(cardsToChooseFrom, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY)){
+		// cardsToChooseFrom = [];
+		// var deck = new Deck (NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY);
+		// for (var i=0;i<3;i++){
+			// deck.shuffle(); //(set[i].getId());
+			// cardsToChooseFrom.push(deck.takeOffTopCard());
+		// }
+		// //console.log(cardsToChooseFrom);
+		// console.log(areCardsASet(cardsToChooseFrom, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY));
+	// }
+	guessMissingCardsFromSetGame_start( SET_CARDS_TO_GUESS,true);
+	
 });
 
 
+//----------game-----------------
 
-function guessMissingCardFromSetGame_start(){
+function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
+	gameStartup = typeof gameStartup !== 'undefined' ? gameStartup : false;
 	numberOfProperties = NUMBER_OF_PROPERTIES; //i.e. shape, quantity, color, infill
 	valuesPerProperty =NUMBER_OF_VALUES_PER_PROPERTY; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
+	
+	var numberOfCardsToGuess = numberOfCardsToGuess;
 	var optionsToChooseFrom = CARDS_TO_CHOOSE_FROM;
 	
-	var setShowField = document.getElementById("topField");
-	//prepare fields in dom
-	//set length is always equal to number of values per property
-	for (var i=0;i<valuesPerProperty - 1;i++){
-		addCardLocationToDom(setShowField,i);
+	
+	if (gameStartup){
+		//if first round, add elements to the dom
+		numberOfCardsMissingFromSet = numberOfCardsToGuess;
+		var setShowField = document.getElementById("topField");
+		//prepare fields in dom
+		//set length is always equal to number of values per property
+		//for (var i=0;i<valuesPerProperty - numberOfCardsToGuess;i++){
+		for (var i=0;i<valuesPerProperty ;i++){
+			addCardLocationToDom(setShowField,i);
+			showBlankCardPositionDom("position"+ i);
+		}
+		
+		var bottomField = document.getElementById("bottomField");
+		bottomField.innerHTML = "<p>Click all the cards that are needed to make a set together with the top cards, according to the SET game rules (needed cards = " + numberOfCardsToGuess + "): </p>";
+		
+		var div;
+		for (var i=0;i<optionsToChooseFrom;i++){
+			//for (var j=0;j<optionsToChooseFrom;j++){
+			if ( i % MAX_CARDS_PER_ROW == 0 ){
+				div = addDiv(bottomField, "bottomRow_" + i/MAX_CARDS_PER_ROW , "bottomRow");
+			}
+			
+			
+			addPossibleCardSolutionLocationToDom(div, i );
+			//}
+		}
+		
 	}
 	
-	var bottomField = document.getElementById("bottomField");
-	bottomField.innerHTML = "<p>Chose the card that fits the top cards, according to the SET game rules: </p>";
-	for (var i=0;i<optionsToChooseFrom;i++){
-		addPossibleCardSolutionLocationToDom(bottomField, i );
-	}
-	guessMissingCardFromSetGame_restart();
-}
-
-function guessMissingCardFromSetGame_restart(){
-	numberOfProperties = NUMBER_OF_PROPERTIES; //i.e. shape, quantity, color, infill
-	valuesPerProperty =NUMBER_OF_VALUES_PER_PROPERTY; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
-	var optionsToChooseFrom = CARDS_TO_CHOOSE_FROM;
 	
 	//complete set
 	var set = getFullSet(numberOfProperties, valuesPerProperty);
@@ -47,27 +96,23 @@ function guessMissingCardFromSetGame_restart(){
 	//possible cards to chose from
 	cardsToChooseFrom = []; //reset options.
 	var deck = new Deck (numberOfProperties, valuesPerProperty);
-	for (var i=0;i<optionsToChooseFrom-1;i++){
-		// var card = new Card ("" , numberOfProperties, valuesPerProperty, false);
+	for (var i=0;i<optionsToChooseFrom-numberOfCardsToGuess;i++){
 		deck.shuffle(); //(set[i].getId());
 		cardsToChooseFrom.push(deck.takeOffTopCard());
-		// card.show();
-		// cardsToChooseFrom.push(card);	
 	}
+	//reset the cards the user has clicked.
+	userChosenCards = [];
 	
-	
-	// for (var i=0;i<set.length;i++){ 
-		// // deck.takeOffSpecificCard(set[i].getId());
-	// }
-	
-	//transfer card from complete solution to "cards to choose from"
-	var solutionCard = set.pop(); 
-	solutionCardId = solutionCard.getId();
-	
-	cardsToChooseFrom.push(solutionCard);
+	//transfer solution cards from complete solution to "cards to choose from"
+	solutionCardIds = [];
+	for (var i=0;i<numberOfCardsToGuess;i++){
+		var solutionCard = set.pop(); 
+		solutionCardIds.push(solutionCard.getId());
+		cardsToChooseFrom.push(solutionCard);
+	}
 	shuffle(cardsToChooseFrom); // shuffle cards
 	
-	
+	cardsFromSetAsGiven = set; // the set cards that are shown to the user are memorized as globals.
 	
 	//add cards
 	for (var i=0;i<set.length;i++){
@@ -76,26 +121,75 @@ function guessMissingCardFromSetGame_restart(){
 	}
 	for (var i=0;i<cardsToChooseFrom.length;i++){
 		//possible answer cards
-		showCardPossibleSolutionDom(cardsToChooseFrom[i],i);
+		
+		showCardDom(cardsToChooseFrom[i], "position_option_"+ i);
 	}
 }
+
+//==================game =========================
 
 
 function checkButtonClicked(number){
-	if (cardsToChooseFrom[number].getId() == solutionCardId){
-		console.log(cardsToChooseFrom[number].getId() == solutionCardId);
-		guessMissingCardFromSetGame_restart();
-	}else{
-		console.log("wrong");
+
+	userChosenCards.push(cardsToChooseFrom[number]);
+	userChosenCardsPostions.push(number);
+	
+	// if (userChosenCards.length + cardsFromSetAsGiven.length <= NUMBER_OF_VALUES_PER_PROPERTY ){
+	if (userChosenCards.length  <= numberOfCardsMissingFromSet ){
+		console.log(userChosenCards.length);
+		//add clicked card to the topfield set.
+		var position = cardsFromSetAsGiven.length  + userChosenCards.length-1;
+		showCardDom(cardsToChooseFrom[number], "position"+position);
+		//delete card from field (make blank)
+		//showBlankCardPositionDom("position_option_"+number);
+		setVisibiliyCardPositionDom("position_option_"+number, false);
+	}
+	
+	if (userChosenCards.length == numberOfCardsMissingFromSet){
+		//user has chosen number of cards
+		userChosenCards.push.apply(userChosenCards, cardsFromSetAsGiven);
+		
+		if (areCardsASet( userChosenCards,NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY)){
+			console.log("found!");
+			setTimeout(resetFromCorrectSetAttempt, 500 ); 
+			
+		}else{
+			console.log("wrong");
+			console.log(userChosenCards);
+			//delay(1000);
+			setTimeout(resetFromWrongSetAttempt, 500 ); 
+			
+		}
 	}
 }
 
-//DOM
+function resetFromWrongSetAttempt(){
+	for (var i = 0;i<userChosenCardsPostions.length ;i++){
+		setVisibiliyCardPositionDom("position_option_"+userChosenCardsPostions[i], true);
+		var setCardPosition = userChosenCards.length - i - 1;
+		showBlankCardPositionDom("position"+ setCardPosition);
+	}
+	userChosenCards = [];
+	userChosenCardsPostions = [];
+}
 
-function addCardSvg(elementToAttachTo,width,id,quantityValue,shapeValue,colorValue, infillValue){
+function resetFromCorrectSetAttempt(){
+	for (var i = 0;i<userChosenCardsPostions.length ;i++){
+		setVisibiliyCardPositionDom("position_option_"+userChosenCardsPostions[i], true);
+		var setCardPosition = userChosenCards.length - i - 1;
+		showBlankCardPositionDom("position"+ setCardPosition);
+	}
+	
+	userChosenCards = [];
+		userChosenCardsPostions = [];
+	guessMissingCardsFromSetGame_start(numberOfCardsMissingFromSet); //restart the game
+}
+
+
+//DOM
+function addCardSvg_classicSetGame(elementToAttachTo,width,id,quantityValue,shapeValue,colorValue, infillValue){
 	//ratio:  width * 1.45 = height
 	var height = width * 1.45;
-	
 	
 	//add card
 	var outlineStrokeWidth = 4;
@@ -112,44 +206,101 @@ function addCardSvg(elementToAttachTo,width,id,quantityValue,shapeValue,colorVal
 	cardOutline.setAttribute('y', outlineStrokeWidth/2); 
 	cardOutline.setAttribute('style',  'fill:white;stroke:black;stroke-width:2;opacity:1'); 
 	card.appendChild(cardOutline);
-	// peanutPoints = "16 28,16 24,16 24,16 23,16 23,16 20,16 20,17 20,17 19,20 19,20 19,21 19,22 20,23 20,23 20,24 20,24 20,25 21,27 21,27 22,28 22,28 23,28 23,29 23,29 24,30 24,30 24,31 24,31 25,32 25,32 26,33 26,34 27,35 27,35 28,36 28,36 28,37 29,48 29,48 28,48 28,51 28,51 28,52 28,52 26,52 26,53 26,53 25,54 25,54 24,55 24,56 23,56 23,57 22,57 21,58 21,59 20,59 20,60 20,60 16,60 16,60 12,60 12,59 12,59 10,58 10,58 9,57 8,56 8,56 8,56 6,52 6,52 6,52 7,51 7,50 8,48 8,48 9,48 9,48 10,47 10,46 11,45 11,45 12,44 12,44 12,40 12,40 12,38 12,38 11,36 11,36 11,34 9,33 9,32 8,32 8,31 7,31 6,29 6,29 5,28 5,27 4,26 4,25 3,25 2,24 2,24 2,20 2,20 2,19 3,16 3,16 3,15 4,14 4,14 4,12 4,12 4,12 5,11 5,9 7,8 7,8 8,8 8,7 9,6 9,6 11,5 11,5 12,5 12,4 13,4 16,4 16,4 19,5 19,5 20,5 20,6 21,6 22,7 22,7 24,10 25,10 26,12 27,12 27,12 28,16 28";
+		
+	//set properties to value.
+	//shape
 	peanutPoints = "0.14 0.54,0.20 0.51,0.25 0.44,0.31 0.44,0.41 0.45,0.55 0.53,0.72 0.53,0.84 0.44,0.92 0.32,0.94 0.22,0.93 0.14,0.90 0.09,0.78 0.19,0.70 0.20,0.64 0.19,0.53 0.16,0.41 0.10,0.30 0.06,0.19 0.09,0.12 0.20,0.07 0.30,0.09 0.46,0.11 0.54,0.17 0.54";
-	// diamondPoints = "0 20 , 20 30 , 40 20, 20 10" ; //"200 200,300 350,400 200,300 50" 
 	diamondPoints = "0 0.25 , 0.5 0.5 , 1 0.25, 0.5 0" ; //"200 200,300 350,400 200,300 50" 
-	// pillPoints = "54 35,64 33,69 28,72 20,71 13,63 10,17 8,8 10,4 17,6 28,12 36";
-	// pillPoints = "0 0.25, 0.25 0, 0.75 0 , 1 0.25, 0.75 0.5, 0.25 0.5";
 	pillPoints = " 0.25 0.5, 0.75 0.5 , 0.815 0.491, 0.875 0.467, 0.927 0.427, 0.967 0.375, 0.991 0.315, 1 0.25, 0.991 0.185, 0.967 0.125, 0.927 0.073, 0.875 0.033, 0.815 0.009, 0.75 0, 0.25 0 ,0.185 0.009, 0.125 0.033, 0.073 0.073, 0.033 0.125, 0.009 0.185, 0.0 0.250, 0.009 0.315, 0.033 0.375, 0.073 0.427, 0.125 0.467, 0.185 0.491	";
 	var shapesByValue= [diamondPoints, pillPoints, peanutPoints];
-	
-	var color = ["red","green","blue"];
-	
-	add_pattern_vertical_lines(card, color[colorValue],width/5000, width/1000);
-	
-	fill_blank = "white";
-	fill_solid = color[colorValue];
-	fill_hatch = "url(#vertical_hatch)"; //defined in svgOperations...
-	var fillByValue = [fill_blank, fill_solid, fill_hatch];
 	var symbolWidth = width/2;
 	var symbolHeightIncludingWhiteSpace = symbolWidth/2.7;
-	var cardsQuantity = quantityValue+1
+		
+	//color
+	var colorByValue = ["red","green","blue"];
+	
+	//pattern
+	var vertical_hatch_id =  "vertical_hatch_"+id;
+	add_pattern_vertical_lines(card, "vertical_hatch_"+id, colorByValue[colorValue],width/5000, width/1000);
+	fill_blank = "white";
+	fill_solid = colorByValue[colorValue];
+	fill_hatch = "url(#"+vertical_hatch_id+")"; //defined in svgOperations...
+	var fillByValue = [fill_blank, fill_solid, fill_hatch];
+	
+	//quantity
+	var cardsQuantity = quantityValue + 1; 
+		
 	//add properties
 	for (var i=0; i<cardsQuantity;i++){
-		//console.log(i);
 		var multiplier = -cardsQuantity + 1 + i * 2;
 		var dy = height/2 -symbolHeightIncludingWhiteSpace/1.5 +  multiplier  * symbolHeightIncludingWhiteSpace; // symbols always in middle.   -symbolHeightIncludingWhiteSpace/1.5 is by trial and error :(
 		
 		//add shape
-		add_polygon(card,shapesByValue[shapeValue], color[colorValue],fillByValue[infillValue],symbolWidth/2, dy, symbolWidth);
+		add_polygon(card,shapesByValue[shapeValue], colorByValue[colorValue],fillByValue[infillValue],symbolWidth/2, dy, symbolWidth);
 	}
-	
-	
-	
-	// console.log(card);
-	//"M166.8369141,235.5478516c0,3.7773438-3.0869141,6.8691406-6.8710938,6.8691406H7.1108398c-3.7749023,0-6.8608398-3.0917969-6.8608398-6.8691406V7.1201172C0.25,3.3427734,3.3359375,0.25,7.1108398,0.25h152.8549805    c3.7841797,0,6.8710938,3.0927734,6.8710938,6.8701172v228.4277344z"
-	// <path xmlns="http://www.w3.org/2000/svg" style="fill:#FFFFFF;stroke-width:0.5;" d="M166.8369141,235.5478516c0,3.7773438-3.0869141,6.8691406-6.8710938,6.8691406H7.1108398c-3.7749023,0-6.8608398-3.0917969-6.8608398-6.8691406V7.1201172C0.25,3.3427734,3.3359375,0.25,7.1108398,0.25h152.8549805    c3.7841797,0,6.8710938,3.0927734,6.8710938,6.8701172v228.4277344z" id="path5"/>
-	
-	
 }
+
+function addCardSvg_special_Brainfuck(elementToAttachTo,width,id, brightnessTextValue,textValue,colorValue, brightnessValue){
+	//ratio:  width * 1.45 = height
+	var height = width * 1.45;
+	
+	//add card
+	var outlineStrokeWidth = 4;
+	addSvg(elementToAttachTo,id,width,height,"white","white");
+	var card = document.getElementById(id);
+	
+	//add card outline
+	var cardOutline = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+	cardOutline.setAttribute('width', width-outlineStrokeWidth); 
+	cardOutline.setAttribute('height', height - outlineStrokeWidth); 
+	cardOutline.setAttribute('rx', width/14); 
+	cardOutline.setAttribute('ry', width/14); 
+	cardOutline.setAttribute('x', outlineStrokeWidth/2); 
+	cardOutline.setAttribute('y', outlineStrokeWidth/2); 
+	cardOutline.setAttribute('style',  'fill:white;stroke:black;stroke-width:2;opacity:1'); 
+	card.appendChild(cardOutline);
+		
+	// //set properties to value.
+	//text
+	var textByValue= ["green", "red", "blue"];
+	
+	var symbolWidth = width/3.5;
+	// var symbolHeightIncludingWhiteSpace = symbolWidth/2.7;
+		
+	//color and colorbrightness by values
+	var colorByValue = [["Red","DarkRed","Salmon"], ["Green","LightGreen","DarkGreen"],["blue","LightSkyBlue","Navy"]]; //http://html-color-codes.info/color-names/
+	
+	//color by value
+	var colorByValue = [["red"],["green"],["blue"]]; //http://html-color-codes.info/color-names/
+	
+	//size by value
+	var sizeByValue = [symbolWidth / 1.5, symbolWidth, symbolWidth * 1.5];
+	
+	// //pattern
+	// add_pattern_vertical_lines(card, colorByValue[colorValue],width/5000, width/1000);
+	// fill_blank = "white";
+	// fill_solid = colorByValue[colorValue];
+	// fill_hatch = "url(#vertical_hatch)"; //defined in svgOperations...
+	// var fillByValue = [fill_blank, fill_solid, fill_hatch];
+	
+	// //brightness text
+	var brightnessTextByValue = ["","dark ", "light "];
+		
+	//font 
+	var fontByValue = ['monospace', 'sans-serif', 'serif'];
+		
+	//add properties
+	//for (var i=0; i<cardsQuantity;i++){
+		//var multiplier = - cardsQuantity + 1 + i * 2;
+		//var dy = height/2 -symbolHeightIncludingWhiteSpace/1.5 +  multiplier  * symbolHeightIncludingWhiteSpace; // symbols always in middle.   -symbolHeightIncludingWhiteSpace/1.5 is by trial and error :(
+		
+		//add shape
+		//add_text(card,brightnessTextByValue[brightnessValue] + textByValue[textValue], colorByValue[colorValue][brightnessValue],symbolWidth, 3, 40);
+		add_text(card, textByValue[textValue], colorByValue[colorValue], sizeByValue[brightnessValue], 3, 40, fontByValue[brightnessTextValue]);
+	//}
+}
+
+
 
 function initGameDom(){
 	var setShowField = document.getElementById("topField");
@@ -157,25 +308,52 @@ function initGameDom(){
 		
 }
 
+function setVisibiliyCardPositionDom(elementToWhichCardIsAttachedId , isVisible){
+	var cardDiv = document.getElementById(elementToWhichCardIsAttachedId);
+	if (isVisible){
+		cardDiv.style.visibility = "";
+	}else{
+		cardDiv.style.visibility = "hidden";
+	}
+		
+}
+
+function showBlankCardPositionDom(elementToAttachToId){
+	var cardDiv = document.getElementById(elementToAttachToId);
+	cardDiv.innerHTML = "";
+	var width = CARD_WIDTH;
+	var height = width * 1.45;
+	
+	//add card
+	var outlineStrokeWidth = 4;
+	addSvg(cardDiv,"blank_"+elementToAttachToId, width ,height,"white","white");
+	// var card = document.getElementById(id);
+	
+	
+}
+
 function showCardDom(card, elementToAttachToId){
 	var cardDiv = document.getElementById(elementToAttachToId);
+	
 	//cardId as title
 	//cardDiv.innerHTML = "<p>"+ card.getId() +"</p>";
 	cardDiv.innerHTML = "";
 	//card as svg
-	addCardSvg(cardDiv,CARD_WIDTH, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
+	
+	//addCardSvg(cardDiv,CARD_WIDTH, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
+	
+	if (GAME_TYPE == "addCardSvg_special_Brainfuck"){
+		addCardSvg_special_Brainfuck(cardDiv,CARD_WIDTH, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
+	}else if( GAME_TYPE == "cards_classic_SET"){
+		addCardSvg_classicSetGame  (cardDiv,CARD_WIDTH, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));	
+	}else{
+		console.log("error, select GAME TYPE");
+	}
 	
 }
 
 
-function showCardPossibleSolutionDom(card, position){
-	// var button = document.getElementById("optionButton"+position);
-	// button.addEventListener('click', function(){
-    // showIdOfACard(card); });
-	
-	showCardDom(card, "position_option_"+ position);
-	// var setShowField = document.getElementById();
-}
+
 
 function addCardLocationToDom(elementToAttachTo,cardPosition){
 	//create a div, show card and add it to the DOM
@@ -203,6 +381,68 @@ function addPossibleCardSolutionLocationToDom(elementToAttachTo,position){
 	//addButtonToExecuteGeneralFunction(optionContainer,"Chose", "optionButton", "optionButton"+ position, checkButtonClicked, position);
 	
 }
+
+
+//----------------------------functionality--------
+
+
+
+
+function areCardsASet(cards ,  numberOfProperties , number_of_values_per_property ){
+	var cardsPerSet = number_of_values_per_property;
+	
+	//check if length is ok, if not, then already for sure not a set (even when it is longer, and potentially contains a set!)
+	if (cards.length !== cardsPerSet){
+		return false;
+	}	
+	//analyse properties of given cards 
+	if (cards.length == 1){
+		return true; //if only one card, and a set contains only one card, then: always true!
+	}
+	
+	// possibleCardPropertyValues = []; //store all cards
+	
+	// var neededPropertyValues = []; //for each property valid value(s) for the given cards to create a set
+	var setRequirementsOkForEachProperty = [];
+	for (var i =0;i<numberOfProperties; i++){
+		//assume false for requirements met for each property
+		setRequirementsOkForEachProperty.push(false);
+	}
+		
+	for (var i =0;i<numberOfProperties; i++){
+		//get properties from given cards
+		var propertyValues = []; // for one property all values of this set minus one card.
+		for (var j =0;j<cards.length ; j++){	
+			propertyValues.push(cards[j].getPropertyValue(i));
+		}
+		
+		if (propertyValues.allValuesSame() ){
+			setRequirementsOkForEachProperty[i] = true; //simply the same value
+		}else if (propertyValues.allValuesUnique ()){
+			setRequirementsOkForEachProperty[i] = true;
+		}else{
+			//if all values not unique or all the same, for sure not a set!
+			return false;
+		}
+	}
+	
+	for (var i =0;i<numberOfProperties.length; i++){
+		//assume false for requirements met for each property
+		if (!setRequirementsOkForEachProperty[i]){
+			return false; // if one of the properties was not true, no set
+		}
+	}
+	
+	return true;
+}
+
+
+
+
+
+
+
+
 
 function showIdOfACard(card){
 	console.log(card.getId());
@@ -276,7 +516,7 @@ function showFullSet(numberOfProperties, valuesPerProperty){
 
 
 function showAGenuineSetSet(){
-	//get perfect set.
+	//get perfect set. from the game SET 
 	numberOfProperties = 4; //i.e. shape, quantity, color, infill
 	valuesPerProperty = 3; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
 	var cards= new Cards(numberOfProperties, valuesPerProperty);
