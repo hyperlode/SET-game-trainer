@@ -15,7 +15,7 @@ var CARD_WIDTH = 100;
 var MAX_CARDS_PER_ROW = 4;
 // var GAME_TYPE = "addCardSvg_special_Brainfuck";
 var GAME_TYPE = "cards_classic_SET";
-var SET_CARDS_TO_GUESS = 3;
+var SET_CARDS_TO_GUESS = 3	;
 
 docReady(function() { 
 	//guessMissingCardFromSetGame_start();
@@ -68,7 +68,7 @@ function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
 		//set length is always equal to number of values per property
 		//for (var i=0;i<valuesPerProperty - numberOfCardsToGuess;i++){
 		for (var i=0;i<valuesPerProperty ;i++){
-			addCardLocationToDom(setShowField,i);
+			addSetCardLocationToDom(setShowField,i);
 			showBlankCardPositionDom("position"+ i);
 		}
 		
@@ -81,8 +81,6 @@ function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
 			if ( i % MAX_CARDS_PER_ROW == 0 ){
 				div = addDiv(bottomField, "bottomRow_" + i/MAX_CARDS_PER_ROW , "bottomRow");
 			}
-			
-			
 			addPossibleCardSolutionLocationToDom(div, i );
 			//}
 		}
@@ -128,8 +126,44 @@ function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
 
 //==================game =========================
 
+function setCardClicked(positionNumber){
+	// console.log("click");
+	// console.log(cardsFromSetAsGiven.length);
+	// console.log(userChosenCards.length);
+	userChosenCardsIndex = positionNumber - cardsFromSetAsGiven.length;
+	
+	if (positionNumber > cardsFromSetAsGiven.length -1 && positionNumber < userChosenCards.length  + cardsFromSetAsGiven.length ){
+		//card position from a user selected card is clicked.
+		
+		console.log(userChosenCards);
+		console.log(userChosenCardsPostions);
+		//show last card blank
+		var blankPosition = userChosenCards.length  + cardsFromSetAsGiven.length -1;
+		showBlankCardPositionDom("position"+blankPosition);
+		
+		
+		var cardToBeRemovedFromSet = userChosenCards[userChosenCardsIndex];
+		var positionOfCardToBeRemovedFromSetInOptionsField = userChosenCardsPostions[userChosenCardsIndex];
+		//remove the selected card.
+		userChosenCards.remove(cardToBeRemovedFromSet);
+		userChosenCardsPostions.remove(positionOfCardToBeRemovedFromSetInOptionsField);
+		
+		console.log(userChosenCards);
+		console.log(userChosenCardsPostions);
+		//refresh the set cards
+		for (var i = 0; i< userChosenCards.length; i++){
+			var pos = cardsFromSetAsGiven.length+i;
+			showCardDom(cardsToChooseFrom[userChosenCardsPostions[0]], "position"+ pos);
+		}
+		
+		setVisibiliyCardPositionDom("position_option_"+positionOfCardToBeRemovedFromSetInOptionsField, true); //set card visible again in field
+		
+		console.log(positionOfCardToBeRemovedFromSetInOptionsField);
+	}
+	
+}
 
-function checkButtonClicked(number){
+function optionCardClicked(number){
 
 	userChosenCards.push(cardsToChooseFrom[number]);
 	userChosenCardsPostions.push(number);
@@ -359,12 +393,18 @@ function addCardLocationToDom(elementToAttachTo,cardPosition){
 	//create a div, show card and add it to the DOM
 	var cardDiv = addDiv(elementToAttachTo, "position" + cardPosition,  "card");
 	
-	  
-	
 	// cardDiv.innerHTML = div.innerHTML + 'Extra stuff';
 	cardDiv.innerHTML = '';
 	//cardDiv.innerHTML = '<p>empty card</p>';
+	
 	return cardDiv;
+}
+
+function addSetCardLocationToDom(elementToAttachTo,cardPosition){
+	
+	var cardDiv= addCardLocationToDom(elementToAttachTo,cardPosition);
+	cardDiv.addEventListener('click', function(){
+    setCardClicked(cardPosition); });
 }
 
 function addPossibleCardSolutionLocationToDom(elementToAttachTo,position){
@@ -375,10 +415,10 @@ function addPossibleCardSolutionLocationToDom(elementToAttachTo,position){
 	
 	//add click event to card
 	cardDiv.addEventListener('click', function(){
-    checkButtonClicked(position); });
+    optionCardClicked(position); });
 	
 	//add button
-	//addButtonToExecuteGeneralFunction(optionContainer,"Chose", "optionButton", "optionButton"+ position, checkButtonClicked, position);
+	//addButtonToExecuteGeneralFunction(optionContainer,"Chose", "optionButton", "optionButton"+ position, optionCardClicked, position);
 	
 }
 
