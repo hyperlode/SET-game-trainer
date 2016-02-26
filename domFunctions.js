@@ -1,3 +1,5 @@
+
+
 Element.prototype.remove = function() {
     this.parentElement.removeChild(this);
 }
@@ -15,6 +17,31 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
     }
 
 	
+function addChrono(elementToAttachTo, id){
+	//adds startbutton, minutes and seconds.
+	var chronoElement = addDiv(elementToAttachTo, id);
+	
+	
+	// addButton(chronoElement,"start","buttonName", id + "_button", setChrono);
+	//var chrono = new Chrono(chronoElement);
+	//console.log(chrono);
+	var buttonElement = addButton(chronoElement,"start","buttonName", id + "_button" );
+	
+	
+	var chronoo = new SimpleTimer(10, buttonElement);
+	chronoo.secondsDiv =  addDiv(chronoElement, id+ "_seconds");
+	chronoo.minutesDiv = addDiv(chronoElement, id+ "_minutes");
+	chronoo.millisDiv =  addDiv(chronoElement, id+ "_millis");
+	
+	chronoo.ButtonSetToStart(); //has to be done here.
+	console.log(chronoo.Interval);
+	
+	//addButtonToExecuteGeneralFunction(chronoElement,"start","buttonName", id + "_button", chronoo.Start.bind(chronoo) );
+	// buttonElement.addEventListener('click', function(){
+		// chronoo.Start.bind(chronoo)(); 
+	// });
+	return chronoo;
+}
 
 
 function addButton(elementToAttachTo,caption,name, id, func){
@@ -24,6 +51,19 @@ function addButton(elementToAttachTo,caption,name, id, func){
 	button.name = name;
 	button.id = id;
     button.onclick = func;
+    elementToAttachTo.appendChild(button);
+	return button;
+}
+
+function addButtonToExecuteGeneralFunction(elementToAttachTo,caption,name, id, func,arg){
+    var button = document.createElement("input");
+    button.type = "button";
+    button.value = caption;
+	button.name = name;
+	button.id = id;
+    button.addEventListener('click', function(){
+		func(arg); 
+	});
     elementToAttachTo.appendChild(button);
 	
 }
@@ -132,18 +172,6 @@ function addCheckBox(elementToAttachTo,id, name, checked, caption){
 
 
 
-function addButtonToExecuteGeneralFunction(elementToAttachTo,caption,name, id, func,arg){
-    var button = document.createElement("input");
-    button.type = "button";
-    button.value = caption;
-	button.name = name;
-	button.id = id;
-    button.addEventListener('click', function(){
-		func(arg); 
-	});
-    elementToAttachTo.appendChild(button);
-	
-}
 	
 //http://stackoverflow.com/questions/9899372/pure-javascript-equivalent-to-jquerys-ready-how-to-call-a-function-when-the
 (function(funcName, baseObj) {

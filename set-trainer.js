@@ -5,6 +5,8 @@ var userChosenCardsPostions = [];
 var numberOfCardsMissingFromSet ;
 var cardsFromSetAsGiven = [];
 var cardsToChooseFrom = [];
+var setSearchChrono;
+
 
 var NUMBER_OF_PROPERTIES = 4;
 var NUMBER_OF_VALUES_PER_PROPERTY = 3;
@@ -23,13 +25,17 @@ var COOKIE_TOPSCORE_VARS = [ "top_1guess","top_2guess","top_3guess"];
 var COOKIES_DAYS_TILL_EXPIRATION = 30;
 SCORE_ELEMENT_ID = "score";
 USER_ELEMENT_ID = "user";
+INFO_ELEMENT_ID = "info";
+BUTTONS_ELEMENT_ID = "buttons";
+CHRONO_ELEMENT_ID = "gameChrono";
+
 // clientservices@tangerine.ca
 //DOM
 var CARD_ANIMATION_DELAY = 200;
 var MAX_CARDS_PER_ROW = 4;
 // var GAME_TYPE = "addCardSvg_special_Brainfuck";
 var GAME_TYPE = "cards_classic_SET";
-var SET_CARDS_TO_GUESS = 3	;
+var SET_CARDS_TO_GUESS = 2	;
 var CARDS_TO_CHOOSE_FROM = 12;
 
 var TIMER_COUNTDOWN_INIT_SECONDS = 60;
@@ -64,24 +70,37 @@ docReady(function() {
 		}
 
 	}
+	
+	numberOfCardsMissingFromSet = SET_CARDS_TO_GUESS;
+	
+	displayHowToDOM();
 	displayUserDOM();
 	displayScoreDOM();
+	
+	displayChronoDOM();
+	displayButtonsDOM();
 	startGame();
 	
 });
 
 
-
+function startGameWithNumberOfCardsToGuess(number){
+	
+	// guessMissingCardsFromSetGame_start(number,true);
+	numberOfCardsMissingFromSet = number;
+	startGame();
+	
+}
 
 //----------game-----------------
 
 function startGame(){
 	score = 0;
-	var cardsToGuess = SET_CARDS_TO_GUESS;
-	var e = document.getElementById("gameLevelBootstrap");
-	// var strUser = e.options[e.selectedIndex].value;	
-	cardsToGuess = e.value;	
-	guessMissingCardsFromSetGame_start( cardsToGuess,true);
+	
+	// var e = document.getElementById("gameLevelBootstrap");
+	// // var strUser = e.options[e.selectedIndex].value;	
+	// cardsToGuess = e.value;	
+	guessMissingCardsFromSetGame_start( numberOfCardsMissingFromSet,true);
 	displayScoreDOM();
 	
 	// var timerDiv = document.getElementById("gameTimer");
@@ -112,7 +131,8 @@ function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
 		}
 		
 		var bottomField = document.getElementById("bottomField");
-		bottomField.innerHTML = "<p>Click all the cards that are needed to make a set together with the top cards, according to the SET game rules (needed cards = " + numberOfCardsToGuess + "): </p>";
+		// bottomField.innerHTML = "<p>Click all the cards that are needed to make a set together with the top cards, according to the SET game rules (needed cards = " + numberOfCardsToGuess + "): </p>";
+		bottomField.innerHTML = "";
 		
 		var div;
 		for (var i=0;i<optionsToChooseFrom;i++){
@@ -285,6 +305,32 @@ function resetFromCorrectSetAttempt(){
 
 //DOM==================================================================
 
+function displayChronoDOM(){
+	var chronoElement = document.getElementById(CHRONO_ELEMENT_ID);
+	setSearchChrono = addChrono(chronoElement, "setTimer");
+	
+}
+
+function displayButtonsDOM(){
+	var buttonsElement = document.getElementById(BUTTONS_ELEMENT_ID);
+	for (var i = 1; i< NUMBER_OF_VALUES_PER_PROPERTY+1; i++){
+		addButtonToExecuteGeneralFunction(buttonsElement,"Guess " + i +" cards", "optionButton", "setCardsNumber_" + i, startGameWithNumberOfCardsToGuess,  i );
+	}
+	
+	// addButtonToExecuteGeneralFunction(buttonsElement,"Start 60s Game", "optionButton", "button_60s_start", st, 60);
+	// addButtonToExecuteGeneralFunction(buttonsElement,"Guess 10 Sets", "optionButton", "button_10sets_start", setCardsToGuess, 60);
+	//set number of 
+	
+}
+
+
+function displayHowToDOM(){
+	var infoElement = document.getElementById(INFO_ELEMENT_ID);
+	infoElement.innerHTML = '<p> <a href= "https://boardgamegeek.com/boardgame/1198/set">game SET</a> of 999 games  trainer. <br> Press Start, then find sets for as long as the clock ticks! Work fast, but, be warned, when you make a mistake, your score is set to zero! <br>Free practice doesn\'t count towards your topScore!</p> <br><p>Click all the cards that are needed to make a set together with the top cards, according to the SET game rules (needed cards = " + numberOfCardsToGuess + "): </p>';
+	
+
+}
+
 function displayUserDOM(){
 	var userElement = document.getElementById(USER_ELEMENT_ID);
 	userElement.innerHTML= "Good luck practicing, " + user;
@@ -294,10 +340,12 @@ function displayScoreDOM(){
 	var scoreElement = document.getElementById(SCORE_ELEMENT_ID);
 	
 	var topScoreString = ""
-	for (var i = 1; i<topScores.length+1; i++){
-		topScoreString += "Your top score for " +i + " card guess: " +  topScores[i-1] + " <BR> ";
-	// scoreElement.innerHTML = "TopScore 1 card guess: "+ topScore_1guess +" <BR> "+"TopScore 2 card guess: "+ topScore_2guess +" <BR> "+"TopScore 3 card guess: : "+ topScore_3guess +" <BR> "+" Score: " + score;
-	}
+	// for (var i = 1; i<topScores.length+1; i++){
+		// topScoreString += "Your top score for " +i + " card guess: " +  topScores[i-1] + " <BR> ";
+	// // scoreElement.innerHTML = "TopScore 1 card guess: "+ topScore_1guess +" <BR> "+"TopScore 2 card guess: "+ topScore_2guess +" <BR> "+"TopScore 3 card guess: : "+ topScore_3guess +" <BR> "+" Score: " + score;
+	// }
+	
+	topScoreString += "Your top score for " +numberOfCardsMissingFromSet + " card guess: " +  topScores[numberOfCardsMissingFromSet-1] + " <BR> ";
 	
 	
 	scoreElement.innerHTML = topScoreString + " Score: " + score;

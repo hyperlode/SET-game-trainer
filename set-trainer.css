@@ -13,6 +13,12 @@ body {
   display: inline-block; // display inline with abality to provide width/height
 }
 
+.cardsField{
+	text-align: center;
+	width: auto;
+	margin: 0 auto;
+}
+
 .cardChoice {
 
   /* width: 100px; */

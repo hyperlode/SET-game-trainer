@@ -17,6 +17,64 @@ function getCookie(cname) {
     return "";
 }
 
+// function Chrono(chronoElement){
+	// this.chronoElement = chronoElement;
+	// this. chronoId = this.chronoElement.id;
+	// this.granularity = 1000;
+	// //this.start(chronoElement);
+// }
+
+// Chrono.prototype.start = function (){
+	// //chrono element must have a div chronoId+"seconds"  and chronoId+"minutes" 
+	
+	// //http://stackoverflow.com/questions/5517597/plain-count-up-timer-in-javascript
+	// var sec = 0;
+	// function pad ( val ) { return val > 9 ? val : "0" + val; }
+	// // this.chrono = setInterval( function(){
+		
+		// // document.getElementById(this.chronoId + "_seconds").innerHTML=pad(++sec%60);
+		// // document.getElementById(this.chronoId + "_minutes").innerHTML=pad(parseInt(sec/60,10));
+	// // }, 1000);
+	
+	// var that = this;
+	
+	// this.chrono = (function chrono(){
+		// console.log("ooiio");
+		// setTimeout(chrono, that.granularity);
+		// document.getElementById(that.chronoId + "_seconds").innerHTML=pad(++sec%60);
+		// document.getElementById(that.chronoId + "_minutes").innerHTML=pad(parseInt(sec/60,10));
+	// }()
+	// )
+	
+	
+	// var buttonElement = document.getElementById(this.chronoId + "_button");
+	
+	// buttonElement.addEventListener('click', function(){
+		// this.stop.bind(that)(); 
+	// });
+	// buttonElement.value = "RESET";
+	
+	
+// }
+
+// Chrono.prototype.stop = function (){
+	// clearInterval ( this.chrono );
+	// // chrono = "";
+	// console.log(this.chrono);
+	// var buttonElement = document.getElementById(this.id + "_button");
+	// // buttonElement.addEventListener('click', function(){
+		// // this.start.bind(this); 
+	// // });
+	 // buttonElement.value = "restart";
+	
+// }
+// Chrono.prototype.reset = function(){
+	// //chrono element must have a div chronoId+"seconds"  and chronoId+"minutes" 
+	
+	// document.getElementById(this.id + "seconds").innerHTML="00";
+	// document.getElementById(this.id + "minutes").innerHTML="00";
+// }
+
 
 
 function padding(stringToBePadded, paddingCharacter, totalLength, padLeftElseRight){
