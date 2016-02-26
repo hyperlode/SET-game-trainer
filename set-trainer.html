@@ -6,23 +6,51 @@
 		<script src="svgOperations.js"></script>
 		<script src="domFunctions.js"></script>
 		<script src="set-trainer.js"></script>
+		<script src="countDownTimer.js"></script>
 		
 		<link href="set-trainer.css" rel="stylesheet">		
 	 
+	 
+	 
 	</head>
 <body>
-game SET of 999 games  trainer
-<div id="set-trainer"
-	<div id="game">
-		<div id="topField">
-		</div>
-		<div id="bottomField">
-			
-		</div>
-	</div>
-<div id = svgTest>
+<p> <a href= "https://boardgamegeek.com/boardgame/1198/set">game SET</a> of 999 games  trainer. <br> Press Start, then find sets for as long as the clock ticks! Work fast, but, be warned, when you make a mistake, your score is set to zero! <br>Free practice doesn't count towards your topScore!</p>
+
+
+<div class="row">
+	<!-- <div class="col-md-4 col-lg-4 vcenter"> -->
+		<select class="selectpicker" id="gameLevelBootstrap"  data-width="auto" onchange="startGame()">
+			<option value="1">Guess One card </option>
+			<option value = "2" selected="selected">Guess Two cards</option>
+			<option value="3">Guess Three Cards</option>
+		</select>
+	<!-- </div> -->
 
 </div>
+
+<div class="row" id=  "user">
+</div>
+<div class="row" id=  "score">
+</div>
+
+<div class="row" id=  "gameTimer">
+</div>
+
+<div class="row">
+
+	<div id="set-trainer"
+		<div id="game">
+			<div id="topField">
+			</div>
+			<div id="bottomField">
+				
+			</div>
+		</div>
+	<!-- <div id = svgTest> -->
+	<!-- </div> -->
+</div>
+
+
 
 </body>
 </html>

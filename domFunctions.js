@@ -38,6 +38,7 @@ function addSelectList(elementToAttachTo, id, name, values ,func){
 	repopulateSelectList(selectList, values);
 	elementToAttachTo.appendChild(selectList);	
 }
+
 function repopulateSelectList(selectList,values){
 	//give the selectList, not the id...
 	while (selectList.length>0){
@@ -46,6 +47,17 @@ function repopulateSelectList(selectList,values){
 	for (var i = 0; i < values.length; i++) {
 		selectList.add(new Option(values[i],values[i]));
 	}
+}
+
+function addClassToElement(el, classText){
+	el.className = el.className + classText;
+}
+
+function setElementBackgroundColor(el, color){
+	//color can be hex or name
+	//http://stackoverflow.com/questions/10205464/what-is-the-difference-between-background-and-background-color
+	el.style.background = color;
+
 }
 
 function addHtml(elementToAttachTo, htmlString){
@@ -127,7 +139,8 @@ function addButtonToExecuteGeneralFunction(elementToAttachTo,caption,name, id, f
 	button.name = name;
 	button.id = id;
     button.addEventListener('click', function(){
-    func(arg); });
+		func(arg); 
+	});
     elementToAttachTo.appendChild(button);
 	
 }

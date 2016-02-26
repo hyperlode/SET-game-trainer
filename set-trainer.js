@@ -5,51 +5,90 @@ var userChosenCardsPostions = [];
 var numberOfCardsMissingFromSet ;
 var cardsFromSetAsGiven = [];
 var cardsToChooseFrom = [];
-var CARDS_TO_CHOOSE_FROM = 12;
+
 var NUMBER_OF_PROPERTIES = 4;
 var NUMBER_OF_VALUES_PER_PROPERTY = 3;
 var CARD_WIDTH = 100;
 
+
+var score = 0;
+var topScores  = [0,0,0];
+var user = "userName";
+
+var COOKIE_USER_VAR = "cookieUserxx";
+var COOKIE_TOPSCORE_VARS = [ "top_1guess","top_2guess","top_3guess"];
+// var COOKIE_TOPSCORE_1GUESS = "top_1guess";
+// var COOKIE_TOPSCORE_2GUESS = "top_2guess";
+// var COOKIE_TOPSCORE_3GUESS = "top_3guess";
+var COOKIES_DAYS_TILL_EXPIRATION = 30;
+SCORE_ELEMENT_ID = "score";
+USER_ELEMENT_ID = "user";
 // clientservices@tangerine.ca
 //DOM
+var CARD_ANIMATION_DELAY = 200;
 var MAX_CARDS_PER_ROW = 4;
 // var GAME_TYPE = "addCardSvg_special_Brainfuck";
 var GAME_TYPE = "cards_classic_SET";
 var SET_CARDS_TO_GUESS = 3	;
+var CARDS_TO_CHOOSE_FROM = 12;
+
+var TIMER_COUNTDOWN_INIT_SECONDS = 60;
 
 docReady(function() { 
-	//guessMissingCardFromSetGame_start();
 	
-	//add_pattern_vertical_lines(setTestSvg);
-	//add_polygon(setTestSvg);
-	//var div = document.getElementById("svgTest");
-	//addCardSvg(div, 100, "ABCA",2,1,2,2);
-	//console.log(svgTest);
+	if (getCookie(COOKIE_USER_VAR) == "" || getCookie(COOKIE_TOPSCORE_VARS[0]) ==  ""){
+		//popup window
+		user = prompt("Please enter your name:", "");
+		setCookie(COOKIE_USER_VAR, user, COOKIES_DAYS_TILL_EXPIRATION);
+		
+		
+		
+		
+		for (var i = 0; i< topScores.length; i++){
+			 setCookie(COOKIE_TOPSCORE_VARS[i], topScores[i],  COOKIES_DAYS_TILL_EXPIRATION);
+		}
+		 
+	}else{
+		
+		
+		
+		for (var i = 0; i< topScores.length; i++){
+			topScores[i] = getCookie(COOKIE_TOPSCORE_VARS[i]);
+		}
 	
-	// var set  =  getFullSet(NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY);
-	// console.log(set);
-	// for (var i=0;i<set.length;i++){
-		// set[i].show();
-	// }
-	// console.log(areCardsASet(set, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY));
-	// //possible cards to chose from
-		// cardsToChooseFrom = []; //reset options.
-	// while(!areCardsASet(cardsToChooseFrom, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY)){
-		// cardsToChooseFrom = [];
-		// var deck = new Deck (NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY);
-		// for (var i=0;i<3;i++){
-			// deck.shuffle(); //(set[i].getId());
-			// cardsToChooseFrom.push(deck.takeOffTopCard());
-		// }
-		// //console.log(cardsToChooseFrom);
-		// console.log(areCardsASet(cardsToChooseFrom, NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY));
-	// }
-	guessMissingCardsFromSetGame_start( SET_CARDS_TO_GUESS,true);
+		//all ok
+		//renew cookie for next time...
+		user =  getCookie(COOKIE_USER_VAR);
+		for (var i = 0; i< topScores.length; i++){
+			 setCookie(COOKIE_TOPSCORE_VARS[i], topScores[i],  COOKIES_DAYS_TILL_EXPIRATION);
+		}
+
+	}
+	displayUserDOM();
+	displayScoreDOM();
+	startGame();
 	
 });
 
 
+
+
 //----------game-----------------
+
+function startGame(){
+	score = 0;
+	var cardsToGuess = SET_CARDS_TO_GUESS;
+	var e = document.getElementById("gameLevelBootstrap");
+	// var strUser = e.options[e.selectedIndex].value;	
+	cardsToGuess = e.value;	
+	guessMissingCardsFromSetGame_start( cardsToGuess,true);
+	displayScoreDOM();
+	
+	// var timerDiv = document.getElementById("gameTimer");
+	//var timer  = new Timer("hoitjes", "countdown", 60 , 0, true, false, "white","gameTimer");
+	addTimer("gameTimer",TIMER_COUNTDOWN_INIT_SECONDS, "timer1");
+};
+
 
 function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
 	gameStartup = typeof gameStartup !== 'undefined' ? gameStartup : false;
@@ -185,24 +224,48 @@ function optionCardClicked(number){
 		
 		if (areCardsASet( userChosenCards,NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY)){
 			console.log("found!");
-			setTimeout(resetFromCorrectSetAttempt, 500 ); 
+			score++;
+			displayScoreDOM();
+			setTimeout(resetFromCorrectSetAttempt, CARD_ANIMATION_DELAY ); 
 			
 		}else{
 			console.log("wrong");
 			console.log(userChosenCards);
 			//delay(1000);
-			setTimeout(resetFromWrongSetAttempt, 500 ); 
+			updateTopScore();
+			
+			
+			score = 0;
+			displayScoreDOM();
+			setTimeout(resetFromWrongSetAttempt, CARD_ANIMATION_DELAY ); 
 			
 		}
 	}
 }
 
+function updateTopScore(){
+	if (score> topScores[numberOfCardsMissingFromSet-1 ]){
+		topScores[numberOfCardsMissingFromSet-1 ] = score;
+	}
+	for (var i = 0; i< topScores.length; i++){
+		 setCookie(COOKIE_TOPSCORE_VARS[i], topScores[i],  COOKIES_DAYS_TILL_EXPIRATION);
+	}
+}
+
 function resetFromWrongSetAttempt(){
+	console.log("reset");
+	//repetion if repeated, no problem, if reset by timer, score setting is done here!
+	 updateTopScore();
+	
+	
+	score = 0;
+	displayScoreDOM();
 	for (var i = 0;i<userChosenCardsPostions.length ;i++){
 		setVisibiliyCardPositionDom("position_option_"+userChosenCardsPostions[i], true);
 		var setCardPosition = userChosenCards.length - i - 1;
 		showBlankCardPositionDom("position"+ setCardPosition);
 	}
+	
 	userChosenCards = [];
 	userChosenCardsPostions = [];
 }
@@ -215,12 +278,32 @@ function resetFromCorrectSetAttempt(){
 	}
 	
 	userChosenCards = [];
-		userChosenCardsPostions = [];
+	userChosenCardsPostions = [];
 	guessMissingCardsFromSetGame_start(numberOfCardsMissingFromSet); //restart the game
 }
 
 
-//DOM
+//DOM==================================================================
+
+function displayUserDOM(){
+	var userElement = document.getElementById(USER_ELEMENT_ID);
+	userElement.innerHTML= "Good luck practicing, " + user;
+}
+	
+function displayScoreDOM(){
+	var scoreElement = document.getElementById(SCORE_ELEMENT_ID);
+	
+	var topScoreString = ""
+	for (var i = 1; i<topScores.length+1; i++){
+		topScoreString += "Your top score for " +i + " card guess: " +  topScores[i-1] + " <BR> ";
+	// scoreElement.innerHTML = "TopScore 1 card guess: "+ topScore_1guess +" <BR> "+"TopScore 2 card guess: "+ topScore_2guess +" <BR> "+"TopScore 3 card guess: : "+ topScore_3guess +" <BR> "+" Score: " + score;
+	}
+	
+	
+	scoreElement.innerHTML = topScoreString + " Score: " + score;
+	
+}
+
 function addCardSvg_classicSetGame(elementToAttachTo,width,id,quantityValue,shapeValue,colorValue, infillValue){
 	//ratio:  width * 1.45 = height
 	var height = width * 1.45;
@@ -973,7 +1056,7 @@ function Card (id , numberOfProperties, numberOfValuesForEachProperty, isPropert
 		}
 		
 	}else if (isPropertiesDefinedById ){
-		this.setPropertiesFromId()
+		this.setPropertiesFromId();
 	}
 	
 	
