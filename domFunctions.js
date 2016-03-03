@@ -17,7 +17,7 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
     }
 
 	
-function addChrono(elementToAttachTo, id){
+function addChrono(elementToAttachTo, id, buttonElement, countDownMillis){
 	//adds startbutton, minutes and seconds.
 	var chronoElement = addDiv(elementToAttachTo, id);
 	
@@ -25,16 +25,16 @@ function addChrono(elementToAttachTo, id){
 	// addButton(chronoElement,"start","buttonName", id + "_button", setChrono);
 	//var chrono = new Chrono(chronoElement);
 	//console.log(chrono);
-	var buttonElement = addButton(chronoElement,"start","buttonName", id + "_button" );
+	//var buttonElement = addButton(chronoElement,"start","buttonName", id + "_button" );
 	
 	
-	var chronoo = new SimpleTimer(10, buttonElement);
+	var chronoo = new SimpleTimer(10, buttonElement,countDownMillis);
 	chronoo.secondsDiv =  addDiv(chronoElement, id+ "_seconds");
 	chronoo.minutesDiv = addDiv(chronoElement, id+ "_minutes");
 	chronoo.millisDiv =  addDiv(chronoElement, id+ "_millis");
 	
 	chronoo.ButtonSetToStart(); //has to be done here.
-	console.log(chronoo.Interval);
+//	console.log(chronoo.Interval);
 	
 	//addButtonToExecuteGeneralFunction(chronoElement,"start","buttonName", id + "_button", chronoo.Start.bind(chronoo) );
 	// buttonElement.addEventListener('click', function(){

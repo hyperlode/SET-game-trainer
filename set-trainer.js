@@ -2,11 +2,11 @@ var solutionCardId = "";
 var solutionCardIds = [];
 var userChosenCards = [];
 var userChosenCardsPostions = [];
-var numberOfCardsMissingFromSet ;
+var numberOfCardsMissingFromSet ; //cards to guess to complete a set 
 var cardsFromSetAsGiven = [];
 var cardsToChooseFrom = [];
 var setSearchChrono;
-
+var gameType;
 
 var NUMBER_OF_PROPERTIES = 4;
 var NUMBER_OF_VALUES_PER_PROPERTY = 3;
@@ -14,11 +14,12 @@ var CARD_WIDTH = 100;
 
 
 var score = 0;
-var topScores  = [0,0,0];
+var topScores  = [0,0,0,0,0,0]; //first three: sets found in 60 seconds, resp:1,2 or 3 card guesses,   last three: time to find 10 sets, in millis.
+
 var user = "userName";
 
 var COOKIE_USER_VAR = "cookieUserxx";
-var COOKIE_TOPSCORE_VARS = [ "top_1guess","top_2guess","top_3guess"];
+var COOKIE_TOPSCORE_VARS = [ "top_1guess","top_2guess","top_3guess","topTime_1guess","topTime_2guess","topTime_3guess"];
 // var COOKIE_TOPSCORE_1GUESS = "top_1guess";
 // var COOKIE_TOPSCORE_2GUESS = "top_2guess";
 // var COOKIE_TOPSCORE_3GUESS = "top_3guess";
@@ -27,41 +28,50 @@ SCORE_ELEMENT_ID = "score";
 USER_ELEMENT_ID = "user";
 INFO_ELEMENT_ID = "info";
 BUTTONS_ELEMENT_ID = "buttons";
+BUTTON_MAIN_ELEMENT_ID = "mainButton";
 CHRONO_ELEMENT_ID = "gameChrono";
 
-// clientservices@tangerine.ca
+// clientservices@tangerine.ca 
 //DOM
+
 var CARD_ANIMATION_DELAY = 200;
 var MAX_CARDS_PER_ROW = 4;
-// var GAME_TYPE = "addCardSvg_special_Brainfuck";
-var GAME_TYPE = "cards_classic_SET";
+// var GAME_CARDS_TYPE = "addCardSvg_special_Brainfuck";
+var GAME_CARDS_TYPE = "cards_classic_SET";
 var SET_CARDS_TO_GUESS = 2	;
 var CARDS_TO_CHOOSE_FROM = 12;
 
 var TIMER_COUNTDOWN_INIT_SECONDS = 60;
 
+var GAME_TYPE_FREE_PLAY = 0; 
+var GAME_TYPE_COUNT_DOWN = 1; //don't change hard coded in topscore saving
+var GAME_TYPE_CHRONO = 2;//don't change hard coded in topscore saving
+
+var SETS_TO_PLAY_IN_CHRONO_GAME = 10;
+var TIME_TO_PLAY_IN_COUNTDOWN_GAME_MILLIS = 60000;
+
 docReady(function() { 
-	
-	if (getCookie(COOKIE_USER_VAR) == "" || getCookie(COOKIE_TOPSCORE_VARS[0]) ==  ""){
+
+	//cookies NEVER work locally!!!!
+	//set cookies and saved variables
+		if (getCookie(COOKIE_USER_VAR) == "" || getCookie(COOKIE_TOPSCORE_VARS[0]) ==  ""){
 		//popup window
 		user = prompt("Please enter your name:", "");
 		setCookie(COOKIE_USER_VAR, user, COOKIES_DAYS_TILL_EXPIRATION);
 		
-		
-		
-		
 		for (var i = 0; i< topScores.length; i++){
 			 setCookie(COOKIE_TOPSCORE_VARS[i], topScores[i],  COOKIES_DAYS_TILL_EXPIRATION);
 		}
-		 
+	
 	}else{
-		
-		
-		
+		var topScoresList = ""
 		for (var i = 0; i< topScores.length; i++){
 			topScores[i] = getCookie(COOKIE_TOPSCORE_VARS[i]);
+			topScoresList += topScores[i] + "    ";
 		}
-	
+		
+		var nameIsValid = window.confirm("welcome back" + getCookie(COOKIE_USER_VAR) + "your topscores: " + topScoresList);
+		
 		//all ok
 		//renew cookie for next time...
 		user =  getCookie(COOKIE_USER_VAR);
@@ -71,45 +81,71 @@ docReady(function() {
 
 	}
 	
+	//initialize DOM
 	numberOfCardsMissingFromSet = SET_CARDS_TO_GUESS;
 	
 	displayHowToDOM();
 	displayUserDOM();
 	displayScoreDOM();
 	
-	displayChronoDOM();
-	displayButtonsDOM();
-	startGame();
+	
+	gameTypeChanged(); //define gametype and set timer.
+	//displayButtonsDOM();
+	
+	
+	//start game
+	startFreeGame();
 	
 });
 
 
-function startGameWithNumberOfCardsToGuess(number){
+// function startGameWithNumberOfCardsToGuess(number){
 	
-	// guessMissingCardsFromSetGame_start(number,true);
-	numberOfCardsMissingFromSet = number;
-	startGame();
+	// // createSet_PlayOneRound(number,true);
+	// numberOfCardsMissingFromSet = number;
+	// startGame();
 	
-}
+// }
+
+
+
 
 //----------game-----------------
 
-function startGame(){
+function gameTypeChanged(){
+	var e = document.getElementById("gameTypeBootstrap");
+	
+	gameType = e.value;
+	displayAndInitChronoDOM();
+}
+
+function gameLevelChanged(){
+	
+	var e = document.getElementById("gameLevelBootstrap");
+	// var strUser = e.options[e.selectedIndex].value;	
+	//cardsToGuess = e.value;	
+	
+	numberOfCardsMissingFromSet = e.value;
+	//createSet_PlayOneRound(numberOfCardsMissingFromSet,true);
+	startFreeGame();
+}
+
+function startFreeGame(){
 	score = 0;
 	
 	// var e = document.getElementById("gameLevelBootstrap");
 	// // var strUser = e.options[e.selectedIndex].value;	
 	// cardsToGuess = e.value;	
-	guessMissingCardsFromSetGame_start( numberOfCardsMissingFromSet,true);
+	createSet_PlayOneRound( numberOfCardsMissingFromSet,true);
 	displayScoreDOM();
 	
 	// var timerDiv = document.getElementById("gameTimer");
 	//var timer  = new Timer("hoitjes", "countdown", 60 , 0, true, false, "white","gameTimer");
-	addTimer("gameTimer",TIMER_COUNTDOWN_INIT_SECONDS, "timer1");
+	//addTimer("gameTimer",TIMER_COUNTDOWN_INIT_SECONDS, "timer1");
 };
 
 
-function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
+function createSet_PlayOneRound(numberOfCardsToGuess, gameStartup){
 	gameStartup = typeof gameStartup !== 'undefined' ? gameStartup : false;
 	numberOfProperties = NUMBER_OF_PROPERTIES; //i.e. shape, quantity, color, infill
 	valuesPerProperty =NUMBER_OF_VALUES_PER_PROPERTY; // i.e 3 (for the color: red, green and blue,   for the infill: solid, stripes, blank   ,.....
@@ -184,6 +220,9 @@ function guessMissingCardsFromSetGame_start(numberOfCardsToGuess, gameStartup){
 }
 
 //==================game =========================
+function mainButtonClicked(){
+		console.log("difsjeifja");
+}
 
 function setCardClicked(positionNumber){
 	// console.log("click");
@@ -219,7 +258,6 @@ function setCardClicked(positionNumber){
 		
 		console.log(positionOfCardToBeRemovedFromSetInOptionsField);
 	}
-	
 }
 
 function optionCardClicked(number){
@@ -245,6 +283,13 @@ function optionCardClicked(number){
 		if (areCardsASet( userChosenCards,NUMBER_OF_PROPERTIES, NUMBER_OF_VALUES_PER_PROPERTY)){
 			console.log("found!");
 			score++;
+			
+			
+			if (gameType == GAME_TYPE_CHRONO && score >= SETS_TO_PLAY_IN_CHRONO_GAME){
+				//if number of cards exceeded, go to reset game (it is finished then!
+				chronoGameEnded();
+			}
+			
 			displayScoreDOM();
 			setTimeout(resetFromCorrectSetAttempt, CARD_ANIMATION_DELAY ); 
 			
@@ -252,31 +297,92 @@ function optionCardClicked(number){
 			console.log("wrong");
 			console.log(userChosenCards);
 			//delay(1000);
-			updateTopScore();
-			
+			updateTopScore(score,true);
 			
 			score = 0;
 			displayScoreDOM();
 			setTimeout(resetFromWrongSetAttempt, CARD_ANIMATION_DELAY ); 
 			
+			
+			if (gameType == GAME_TYPE_CHRONO){
+				//reset and restart.
+			}
+			
+			
 		}
 	}
 }
 
-function updateTopScore(){
-	if (score> topScores[numberOfCardsMissingFromSet-1 ]){
-		topScores[numberOfCardsMissingFromSet-1 ] = score;
+
+
+function updateTopScore(amount, highestUpdateElseLowest){
+	highestUpdateElseLowest = typeof highestUpdateElseLowest !== 'undefined' ? highestUpdateElseLowest : true;
+	//countdown is one
+	//chrono is two
+	
+	
+	// console.log(gameType);
+	// console.log(numberOfCardsMissingFromSet);
+	// console.log("check topscore");
+	// console.log(numberOfCardsMissingFromSet-1);
+	// console.log((gameType - 1)*3 + numberOfCardsMissingFromSet-1);
+	// console.log(topScorePosition);
+	//if ( (highestUpdateElseLowest && amount > topScores[ getTopScorePositionInTopScores()])  ||  (!highestUpdateElseLowest && amount < topScores[ getTopScorePositionInTopScores()]) ){
+	var compareAmount = amount
+	var scoreToCompareTo = topScores[ getTopScorePositionInTopScores()];
+	if (!highestUpdateElseLowest){
+		// if (scoreToCompareTo == 0){
+			// scoreToCompareTo = 66666666;
+			
+		// }
+		scoreToCompareTo = -scoreToCompareTo;
+		compareAmount  = -compareAmount; 
 	}
+	console.log(compareAmount);
+	console.log(scoreToCompareTo);
+	if ( compareAmount > scoreToCompareTo || (scoreToCompareTo == 0 )){
+		
+		
+		topScores[getTopScorePositionInTopScores()] = amount;
+	
+		console.log("new topscore");
+	}
+	
 	for (var i = 0; i< topScores.length; i++){
 		 setCookie(COOKIE_TOPSCORE_VARS[i], topScores[i],  COOKIES_DAYS_TILL_EXPIRATION);
 	}
 }
 
+function chronoGameEnded(){
+	
+	setSearchChrono.Stop();
+	updateTopScore(setSearchChrono.millis,false);
+	// setSearchChrono.millis;
+	console.log("game ended");
+	//console.log(setSearchChrono.getMillis()); //returns error "not a function for a for me unknown reason
+	
+	score = 0;
+	
+}
+
+function resetGame(){
+	
+	
+	resetFromWrongSetAttempt();
+	
+	if (gameType == GAME_TYPE_CHRONO){
+		setSearchChrono.Start();
+	}
+	
+}
+
 function resetFromWrongSetAttempt(){
 	console.log("reset");
 	//repetion if repeated, no problem, if reset by timer, score setting is done here!
-	 updateTopScore();
 	
+	if (gameType == GAME_TYPE_COUNT_DOWN){
+		updateTopScore(score,true);
+	}
 	
 	score = 0;
 	displayScoreDOM();
@@ -299,16 +405,27 @@ function resetFromCorrectSetAttempt(){
 	
 	userChosenCards = [];
 	userChosenCardsPostions = [];
-	guessMissingCardsFromSetGame_start(numberOfCardsMissingFromSet); //restart the game
+	createSet_PlayOneRound(numberOfCardsMissingFromSet); //restart the game
 }
-
 
 //DOM==================================================================
 
-function displayChronoDOM(){
+// function displayAndInitChronoDOM(){
+	// addButton(chronoElement,"start","buttonName", id + "_button", setChrono);
+// } 
+
+function displayAndInitChronoDOM(){
 	var chronoElement = document.getElementById(CHRONO_ELEMENT_ID);
-	setSearchChrono = addChrono(chronoElement, "setTimer");
+	chronoElement.innerHTML = "";
+	var buttonElement = document.getElementById(BUTTON_MAIN_ELEMENT_ID);
+	console.log("heyeyeyy");
+	console.log(gameType);
 	
+	var countDownTimerMillis = TIME_TO_PLAY_IN_COUNTDOWN_GAME_MILLIS;
+	if (gameType == GAME_TYPE_CHRONO ){
+		countDownTimerMillis = -1; //if chrono no init time.
+	}
+	setSearchChrono = addChrono(chronoElement, "setTimer",buttonElement,countDownTimerMillis ); //simpleTimer
 }
 
 function displayButtonsDOM(){
@@ -320,22 +437,22 @@ function displayButtonsDOM(){
 	// addButtonToExecuteGeneralFunction(buttonsElement,"Start 60s Game", "optionButton", "button_60s_start", st, 60);
 	// addButtonToExecuteGeneralFunction(buttonsElement,"Guess 10 Sets", "optionButton", "button_10sets_start", setCardsToGuess, 60);
 	//set number of 
-	
 }
-
 
 function displayHowToDOM(){
 	var infoElement = document.getElementById(INFO_ELEMENT_ID);
-	infoElement.innerHTML = '<p> <a href= "https://boardgamegeek.com/boardgame/1198/set">game SET</a> of 999 games  trainer. <br> Press Start, then find sets for as long as the clock ticks! Work fast, but, be warned, when you make a mistake, your score is set to zero! <br>Free practice doesn\'t count towards your topScore!</p> <br><p>Click all the cards that are needed to make a set together with the top cards, according to the SET game rules (needed cards = " + numberOfCardsToGuess + "): </p>';
-	
-
+	infoElement.innerHTML = '<p> <a href= "https://boardgamegeek.com/boardgame/1198/set">game SET</a> of 999 games  trainer. <br> Press Start, then find sets for as long as the clock ticks! Work fast, but, be warned, when you make a mistake, your score is set to zero! <br>Free practice doesn\'t count towards your topScore!</p> <br><p>Click all the cards that are needed to make a set together with the top cards, according to the SET game rules.  </p>';
 }
 
 function displayUserDOM(){
 	var userElement = document.getElementById(USER_ELEMENT_ID);
 	userElement.innerHTML= "Good luck practicing, " + user;
 }
-	
+
+function getTopScorePositionInTopScores(){
+	return (numberOfCardsMissingFromSet-1)+ (gameType - 1)*3  ; 
+}
+
 function displayScoreDOM(){
 	var scoreElement = document.getElementById(SCORE_ELEMENT_ID);
 	
@@ -345,11 +462,9 @@ function displayScoreDOM(){
 	// // scoreElement.innerHTML = "TopScore 1 card guess: "+ topScore_1guess +" <BR> "+"TopScore 2 card guess: "+ topScore_2guess +" <BR> "+"TopScore 3 card guess: : "+ topScore_3guess +" <BR> "+" Score: " + score;
 	// }
 	
-	topScoreString += "Your top score for " +numberOfCardsMissingFromSet + " card guess: " +  topScores[numberOfCardsMissingFromSet-1] + " <BR> ";
-	
+	topScoreString += "Your top score for " +numberOfCardsMissingFromSet + " card guess: " +  topScores[getTopScorePositionInTopScores()] + " <BR> ";
 	
 	scoreElement.innerHTML = topScoreString + " Score: " + score;
-	
 }
 
 function addCardSvg_classicSetGame(elementToAttachTo,width,id,quantityValue,shapeValue,colorValue, infillValue){
@@ -507,9 +622,9 @@ function showCardDom(card, elementToAttachToId){
 	
 	//addCardSvg(cardDiv,CARD_WIDTH, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
 	
-	if (GAME_TYPE == "addCardSvg_special_Brainfuck"){
+	if (GAME_CARDS_TYPE == "addCardSvg_special_Brainfuck"){
 		addCardSvg_special_Brainfuck(cardDiv,CARD_WIDTH, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));
-	}else if( GAME_TYPE == "cards_classic_SET"){
+	}else if( GAME_CARDS_TYPE == "cards_classic_SET"){
 		addCardSvg_classicSetGame  (cardDiv,CARD_WIDTH, elementToAttachToId +"_"+card.getId() , card.getPropertyValue(0),card.getPropertyValue(1),card.getPropertyValue(2), card.getPropertyValue(3));	
 	}else{
 		console.log("error, select GAME TYPE");
